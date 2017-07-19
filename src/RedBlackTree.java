@@ -279,6 +279,49 @@ public class RedBlackTree {
 		return ret;
 	}
 	
+	/**
+	 * Returns the node with key, or nilNode if not present
+	 * @param key
+	 * @return
+	 */
+	public RedBlackNode find(long key) {
+		RedBlackNode ret = root;
+		while(ret.key != key && ret.key != -1) {
+			if(key < ret.key) {
+				ret = ret.leftChild;
+			}
+			else {
+				ret = ret.rightChild;
+			}
+		}
+		return ret;
+	}
+	
+	/*public RedBlackNode findSuccessor(long key) {
+		RedBlackNode ret = root;
+		
+	}*/
+	
+	/**
+	 * Decreases the key of a given node by deleting it, setting its key equal to k
+	 * shifted 33 bits left + id, and finally inserting it again.
+	 * @param node
+	 */
+	public void decreaseKey(RedBlackNode node, int k) {
+		deleteNode(node);
+		long newKey = calcKey(k,node.id);
+		node.key = newKey;
+		insertNode(node);
+	}
+	
+	// Shift val 33 places to the left to make space for ID of 8bil.
+	private long calcKey(int val, long id) {
+		long ret = val;
+		ret = ret << 33;
+		ret = ret+id;
+		return ret;
+	}
+	
 	public void checkTree() {
 		checkNode(root);
 	}

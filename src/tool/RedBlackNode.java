@@ -11,10 +11,11 @@ public class RedBlackNode extends Node {
 
 	private static final long serialVersionUID = -8197458607384982079L;
 	public long key = Long.MAX_VALUE;
-	public RedBlackNode path; // Previous node on the shortest path tree
-	public RedBlackNode parent;
-	public RedBlackNode leftChild;
-	public RedBlackNode rightChild;
+	public RedBlackNode path = null; // Previous node on the shortest path tree
+	public int pathLength = 0;
+	public RedBlackNode parent = null;;
+	public RedBlackNode leftChild = null;;
+	public RedBlackNode rightChild = null;;
 	public boolean colour = false; // False = black, true = red
 	
 	public RedBlackNode(long id, double lat, double lon) {
