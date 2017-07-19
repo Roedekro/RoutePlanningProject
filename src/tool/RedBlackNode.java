@@ -1,6 +1,8 @@
 package tool;
-
 import java.util.ArrayList;
+
+import elements.Edge;
+import elements.Node;
 
 /**
  * Wrapper for a Node object to be placed in a Red Black Tree.

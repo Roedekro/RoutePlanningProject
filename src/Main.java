@@ -1,4 +1,5 @@
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,17 +7,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import elements.Edge;
 import tool.*;
 
 public class Main {
 
 	public static void main(String[] args) {
 		//testRedBlackTree();
-		try {
-			dijkstraTest("boligKvarter");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		File file = new File("boligKvarter");
+		System.out.println(file.exists());
+		if(file.exists()) {
+			try {
+				dijkstraTest("boligKvarter");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -25,6 +31,8 @@ public class Main {
 		Tool tool = new Tool();
 		ArrayList<RedBlackNode> nodes = tool.getRedBlackNodes(input);
 		HashMap<Long,RedBlackNode> hashMap = new HashMap<Long,RedBlackNode>();
+		
+		System.out.println("Size is "+nodes.size());
 		
 		// Selection random source and target
 		// Alternatively always use the same source and target

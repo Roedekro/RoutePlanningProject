@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
+import elements.Node;
+
 /**
  * Tool for reading in Node files.
  * @author Martin
@@ -55,8 +57,11 @@ public class Tool {
 		ArrayList<RedBlackNode> ret = new ArrayList<RedBlackNode>();
 		ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(new FileInputStream(input),B));
 		Node node = null;
+		int i = 0;
 		while(true) {
+			i++;
 			try {
+				System.out.println(i);
 				node = (Node) oin.readObject();
 				ret.add(new RedBlackNode(node));
 			} catch (ClassNotFoundException e) {
