@@ -7,11 +7,13 @@ import tool.RedBlackNode;
  */
 public class RedBlackTree {
 	
-	public RedBlackNode nilNode = new RedBlackNode(-1,0,0); // Key/ID = -1
+	public RedBlackNode nilNode = new RedBlackNode(-1L,0,0); // Key/ID = -1
 	public RedBlackNode root;
 	public long size = 0;
+	private int shift = 33;
 	
 	public RedBlackTree() {
+		nilNode.key = -1L;
 		root = nilNode;
 		nilNode.parent = nilNode;
 		nilNode.leftChild = nilNode;
@@ -24,7 +26,7 @@ public class RedBlackTree {
 		RedBlackNode newParent = nilNode;
 		RedBlackNode search = root;
 		// Find placement
-		while(search.id != -1) {
+		while(search.id != -1L) {
 			newParent = search;
 			if(node.key < search.key) {
 				search = search.leftChild;
@@ -34,7 +36,7 @@ public class RedBlackTree {
 			}
 		}
 		node.parent = newParent;
-		if(newParent.id == -1) {
+		if(newParent.id == -1L) {
 			root = node;
 		}
 		else if(node.key < newParent.key) {
@@ -106,11 +108,11 @@ public class RedBlackTree {
 		
 		RedBlackNode y = x.rightChild;
 		x.rightChild = y.leftChild;
-		if(y.leftChild.id != -1) {
+		if(y.leftChild.id != -1L) {
 			y.leftChild.parent = x;
 		}
 		y.parent = x.parent;
-		if(x.parent.id == -1) {
+		if(x.parent.id == -1L) {
 			root = y;
 		}
 		else if(x.id == x.parent.leftChild.id) {
@@ -128,11 +130,11 @@ public class RedBlackTree {
 		
 		RedBlackNode y = x.leftChild;
 		x.leftChild = y.rightChild;
-		if(y.rightChild.id != -1) {
+		if(y.rightChild.id != -1L) {
 			y.rightChild.parent = x;
 		}
 		y.parent = x.parent;
-		if(x.parent.id == -1) {
+		if(x.parent.id == -1L) {
 			root = y;
 		}
 		else if(x.id == x.parent.rightChild.id) {
@@ -152,14 +154,14 @@ public class RedBlackTree {
 	 */
 	private RedBlackNode minimum(RedBlackNode node) {
 		RedBlackNode ret = node;
-		while(ret.leftChild.id != -1) {
+		while(ret.leftChild.id != -1L) {
 			ret = ret.leftChild;
 		}
 		return ret;
 	}
 	
 	private void transplant(RedBlackNode u, RedBlackNode v) {		
-		if(u.parent.id == -1) {
+		if(u.parent.id == -1L) {
 			root = v;
 		}
 		else if(u.parent.leftChild.id == u.id) {
@@ -177,11 +179,11 @@ public class RedBlackTree {
 		RedBlackNode y = z;
 		RedBlackNode x;
 		boolean originalColour = y.colour;
-		if(z.leftChild.id == -1) {
+		if(z.leftChild.id == -1L) {
 			x = z.rightChild;
 			transplant(z,z.rightChild);
 		}
-		else if(z.rightChild.id == -1) {
+		else if(z.rightChild.id == -1L) {
 			x = z.leftChild;
 			transplant(z,z.leftChild);
 		}
@@ -286,7 +288,7 @@ public class RedBlackTree {
 	 */
 	public RedBlackNode find(long key) {
 		RedBlackNode ret = root;
-		while(ret.key != key && ret.key != -1) {
+		while(ret.key != key && ret.key != -1L) {
 			if(key < ret.key) {
 				ret = ret.leftChild;
 			}
@@ -307,17 +309,17 @@ public class RedBlackTree {
 	 * shifted 33 bits left + id, and finally inserting it again.
 	 * @param node
 	 */
-	public void decreaseKey(RedBlackNode node, int k) {
+	public void decreaseKey(RedBlackNode node, long newPathLenght) {
 		deleteNode(node);
-		long newKey = calcKey(k,node.id);
+		long newKey = calcKey(newPathLenght,node.id);
 		node.key = newKey;
 		insertNode(node);
 	}
 	
-	// Shift val 33 places to the left to make space for ID of 8bil.
-	private long calcKey(int val, long id) {
-		long ret = val;
-		ret = ret << 33;
+	// Shift val shift places to the left to make space for ID of 8bil.
+	private long calcKey(long newPathLenght, long id) {
+		long ret = newPathLenght;
+		ret = ret << shift;
 		ret = ret+id;
 		return ret;
 	}
@@ -332,12 +334,12 @@ public class RedBlackTree {
 				System.out.println("Error colour "+node.id+" "+node.colour+" "+node.leftChild.colour+" "+node.rightChild.colour);
 			}
 		}
-		if(node.leftChild.id != -1) {
+		if(node.leftChild.id != -1L) {
 			if(node.key <= node.leftChild.key) {
 				System.out.println("Heap order invalid, left child larger "+node.id+" "+node.key+" "+node.leftChild.key);
 			}
 		}
-		if(node.rightChild.id != -1) {
+		if(node.rightChild.id != -1L) {
 			if(node.key > node.rightChild.key) {
 				System.out.println("Heap order invalid, right child smaller "+node.id+" "+node.key+" "+node.rightChild.key);
 			}
@@ -355,10 +357,10 @@ public class RedBlackTree {
 			}
 		}
 		
-		if(node.leftChild.id != -1) {
+		if(node.leftChild.id != -1L) {
 			checkNode(node.leftChild);
 		}
-		if(node.rightChild.id != -1) {
+		if(node.rightChild.id != -1L) {
 			checkNode(node.rightChild);
 		}
 	}
@@ -369,10 +371,10 @@ public class RedBlackTree {
 	
 	private void printNode(RedBlackNode node) {
 		System.out.println(node.id + " "+node.parent.id+" "+node.leftChild.id+" "+node.rightChild.id + " "+node.colour);
-		if(node.leftChild.id != -1) {
+		if(node.leftChild.id != -1L) {
 			printNode(node.leftChild);
 		}
-		if(node.rightChild.id != -1) {
+		if(node.rightChild.id != -1L) {
 			printNode(node.rightChild);
 		}
 	}

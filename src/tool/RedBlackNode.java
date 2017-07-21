@@ -14,7 +14,8 @@ public class RedBlackNode extends Node {
 	private static final long serialVersionUID = -8197458607384982079L;
 	public long key = Long.MAX_VALUE;
 	public RedBlackNode path = null; // Previous node on the shortest path tree
-	public int pathLength = 0;
+	public long pathLength = Long.MAX_VALUE;
+	public boolean deleted = false;
 	public RedBlackNode parent = null;;
 	public RedBlackNode leftChild = null;;
 	public RedBlackNode rightChild = null;;
