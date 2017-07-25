@@ -1,5 +1,3 @@
-import tool.RedBlackNode;
-
 /**
  * Based on Introduction to Algorithms third edition chapter 13.
  * @author Martin

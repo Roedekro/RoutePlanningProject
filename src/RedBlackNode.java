@@ -1,8 +1,8 @@
-package tool;
+
 import java.util.ArrayList;
 
-import elements.Edge;
-import elements.Node;
+import tool.Edge;
+import tool.Node;
 
 /**
  * Wrapper for a Node object to be placed in a Red Black Tree.
@@ -16,6 +16,7 @@ public class RedBlackNode extends Node {
 	public RedBlackNode path = null; // Previous node on the shortest path tree
 	public long pathLength = Long.MAX_VALUE;
 	public boolean deleted = false;
+	public boolean inserted = false;
 	public RedBlackNode parent = null;;
 	public RedBlackNode leftChild = null;;
 	public RedBlackNode rightChild = null;;
