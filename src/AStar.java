@@ -65,14 +65,15 @@ private static int shift = 33;
 			}
 		}
 		
+		// NOPE - Wait till they are touched by one of the heaps.
 		// Add potential
 		double cmHour = 130*27.7777778;
-		for(int i = 0; i < nodes.size(); i++) {
+		/*for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
 			// Euclidian distance in cm divided by 130km/h in cm/h. 
 			// Dont use Math.round as it must be a lower bound. Casting to long will round it down.
 			node.potential = (long) (calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon) / cmHour);
-		}
+		}*/
 		
 		preprocessStop = System.currentTimeMillis();
 		preprocessTotal += (preprocessStop-preprocessStart);
@@ -96,6 +97,7 @@ private static int shift = 33;
 				node.path = null;
 				node.pathLength = Long.MAX_VALUE;
 				node.keyLength = Long.MAX_VALUE;
+				node.potential = 0;
 				if(node.id == source) {
 					sourceNode = node;
 					node.key = 0;
@@ -121,11 +123,19 @@ private static int shift = 33;
 				node = (AStarNode) tree.deleteMin();
 				nodesChecked++;
 				node.deleted = true;
+				// Calculate potential if not already done
+				if(node.potential == 0) {
+					node.potential = (long) (calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon) / cmHour);
+				}
 				Edge edge = null;
 				AStarNode decreaseNode = null;
 				for(int i = 0; i < node.edges.size(); i++) {
 					edge = node.edges.get(i);
 					decreaseNode = hashMap.get(edge.nodeID);
+					// Calculate potential
+					if(decreaseNode.potential == 0) {
+						node.potential = (long) (calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon) / cmHour);
+					}
 					// Give discount if we move towards target
 					// and likewhise give penalty if we move away
 					long newKeyLength = node.pathLength + edge.travelTime + 
@@ -208,9 +218,11 @@ private static int shift = 33;
 			}
 		}
 		
+		// Nope - Wait till the nodes are touched.
+		// Was also wrong potential.
 		// Add potential
 		double cmHour = 130*27.7777778;
-		long potential1 = 0;
+		/*long potential1 = 0;
 		long potential2 = 0;
 		long potentialSourceTarget = (long) (calculateDistance(sourceNode.lat, sourceNode.lon, targetNode.lat, targetNode.lon) / cmHour);
 		for(int i = 0; i < nodes.size(); i++) {
@@ -222,7 +234,7 @@ private static int shift = 33;
 			potential2 = (long) (calculateDistance(node.lat, node.lon, sourceNode.lat, sourceNode.lon) / cmHour);
 			node.potential = ((potential1 - potential2)/2) + potentialSourceTarget;
 			node.potential2 = ((potential2 - potential1)/2) + potentialSourceTarget;
-		}
+		}*/
 		
 		// Add opposite edges
 		for(int i = 0; i < nodes.size(); i++) {
@@ -244,11 +256,15 @@ private static int shift = 33;
 		preprocessTotal = preprocessTotal * runs; // To be averaged out later
 		
 		long shortest = Long.MAX_VALUE; // For use below
+		AStarNode smallest = null;
 		
 		for(int r = 0; r < runs; r++) {
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
+			
+			shortest = Long.MAX_VALUE;
+			smallest = null;
 			
 			for(int i = 0; i < nodes.size(); i++) {
 				node = nodes.get(i);
@@ -273,6 +289,8 @@ private static int shift = 33;
 				node.pathLength2 = Long.MAX_VALUE;
 				node.keyLength = Long.MAX_VALUE;
 				node.keyLength2 = Long.MAX_VALUE;
+				node.potential = 0;
+				node.potential2 = 0;
 				if(node.id == source) {
 					sourceNode = node;
 					node.key = 0;
@@ -304,19 +322,30 @@ private static int shift = 33;
 			// Bidirectional Dijkstra
 			AStarNode node1 = sourceNode;
 			AStarNode node2 = targetNode;
-			while(node1.id != targetNode.id || node2.id != sourceNode.id) {
+			//while(true) {
+			while(node1.id != targetNode.id && node2.id != sourceNode.id) {
 				node1 = (AStarNode) tree.deleteMin();
 				nodesChecked++;
 				if(node1.deleted2) {
 					break;
 				}
+				if(node1.potential == 0) {
+					node1.potential = (calculateDistance(node1.lat,node1.lon,targetNode.lat,targetNode.lon) - calculateDistance(sourceNode.lat,sourceNode.lon,node1.lat,node1.lon))/2;
+				}
 				node2 = (AStarNode) biTree.deleteMin();
 				nodesChecked++;
-				node1.deleted = true;
-				node2.deleted2 = true;
 				if(node2.deleted) {
 					break;
 				}
+				if(node2.potential2 == 0) {
+					node2.potential2 = (calculateDistance(sourceNode.lat,sourceNode.lon,node2.lat,node2.lon) - calculateDistance(node2.lat,node2.lon,targetNode.lat,targetNode.lon))/2;
+				}
+				if(node1.potential+node1.potential2 >= shortest || node2.potential+node2.potential2 >= shortest) {
+					System.out.println("TEST "+shortest);
+					break;
+				}
+				node1.deleted = true;
+				node2.deleted2 = true;
 				Edge edge1 = null;
 				AStarNode decreaseNode1 = null;
 				for(int i = 0; i < node1.edges.size(); i++) {
@@ -328,6 +357,11 @@ private static int shift = 33;
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = node1.pathLength + edge1.travelTime;
 						decreaseNode1.keyLength = newKeyLength;
+						long newMin = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+							smallest = decreaseNode1;
+						}
 						if(decreaseNode1.inserted) {
 							tree.decreaseKey(decreaseNode1, newKeyLength);
 						}
@@ -349,6 +383,11 @@ private static int shift = 33;
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = node2.pathLength2 + edge2.travelTime;
 						decreaseNode2.keyLength2 = newKeyLength;
+						long newMin = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+							smallest = decreaseNode2;
+						}
 						if(decreaseNode2.inserted2) {
 							biTree.decreasekey(decreaseNode2, newKeyLength);
 						}
@@ -364,9 +403,7 @@ private static int shift = 33;
 			ArrayList<AStarNode> path = new ArrayList<AStarNode>();
 			
 			// Run through all nodes and find smallest pathLenght + pathLength2
-			AStarNode smallest = null;
-			shortest = Long.MAX_VALUE;
-			long val = 0;
+			/*long val = 0;
 			for(int i = 0; i < nodes.size(); i++) {
 				node = nodes.get(i);
 				val = node.pathLength + node.pathLength2;
@@ -374,7 +411,7 @@ private static int shift = 33;
 					shortest = val;
 					smallest = node;
 				}
-			}
+			}*/
 			
 			// Found a node on shortest path, follow it
 			node = smallest;

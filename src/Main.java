@@ -30,12 +30,13 @@ public class Main {
 				//bidirectionalDijkstraTest("Roedekro");
 				
 				// Correct output is 203260
+				// Other numbers will vary, either 77 or 78 and xxxx.
 				//normalDijkstra(input,source,target,runs);
 				//dijkstraDelayedInsert(input,source,target,runs);
 				//bidirectionalDijkstra(input,source,target,runs);
-				//bidirectionalDijkstraDelayedInsert()input,source,target,runs;
-				//aStarEuclidian(input,source,target,runs);
-				aStarBiDirectionalEuclidian(input, source, target, runs);
+				//bidirectionalDijkstraDelayedInsert(input,source,target,runs);
+				aStarEuclidian(input,source,target,runs);
+				//aStarBiDirectionalEuclidian(input, source, target, runs);
 				
 				
 			} catch (IOException e) {

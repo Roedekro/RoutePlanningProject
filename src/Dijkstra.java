@@ -327,6 +327,7 @@ public class Dijkstra {
 		}
 		
 		long shortest = Long.MAX_VALUE; // For use below
+		BiRedBlackNode smallest = null;
 		
 		preprocessStop = System.currentTimeMillis();
 		preprocessTotal += (preprocessStop-preprocessStart);
@@ -336,6 +337,10 @@ public class Dijkstra {
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
+			
+			shortest = Long.MAX_VALUE;
+			smallest = null;
+			
 			RedBlackTree tree = new RedBlackTree();
 			BiRedBlackTree biTree = new BiRedBlackTree();
 			for(int i = 0; i < binodes.size(); i++) {
@@ -396,15 +401,25 @@ public class Dijkstra {
 				if(node2.deleted) {
 					break;
 				}
+				if(node1.pathLength + node2.pathLength2 >= shortest) {
+					//System.out.println("Test");
+					break;
+				}
 				Edge edge1 = null;
 				BiRedBlackNode decreaseNode1 = null;
 				for(int i = 0; i < node1.edges.size(); i++) {
 					edge1 = node1.edges.get(i);
 					decreaseNode1 = hashMap.get(edge1.nodeID);
+					long newMin = 0;
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
+						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = newMin;
+							smallest = decreaseNode1;
+						}
 						tree.decreaseKey(decreaseNode1, newPathLenght);
 					}
 				}
@@ -413,10 +428,16 @@ public class Dijkstra {
 				for(int i = 0; i < node2.edges2.size(); i++) {
 					edge2 = node2.edges2.get(i);
 					decreaseNode2 = hashMap.get(edge2.nodeID);
+					long newMin = 0;
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
+						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = newMin;
+							smallest = decreaseNode2;
+						}
 						biTree.decreasekey(decreaseNode2, newPathLenght);
 					}
 				}
@@ -425,8 +446,7 @@ public class Dijkstra {
 			ArrayList<RedBlackNode> path = new ArrayList<RedBlackNode>();
 			
 			// Run through all nodes and find smallest pathLenght + pathLength2
-			BiRedBlackNode smallest = null;
-			long val = 0;
+			/*long val = 0;
 			for(int i = 0; i < binodes.size(); i++) {
 				node = binodes.get(i);
 				val = node.pathLength + node.pathLength2;
@@ -434,7 +454,7 @@ public class Dijkstra {
 					shortest = val;
 					smallest = node;
 				}
-			}
+			}*/
 			
 			// Found a node on shortest path, follow it
 			node = smallest;
@@ -513,6 +533,7 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 		}
 		
 		long shortest = Long.MAX_VALUE; // For use below
+		BiRedBlackNode smallest = null;
 		
 		preprocessStop = System.currentTimeMillis();
 		preprocessTotal += (preprocessStop-preprocessStart);
@@ -522,6 +543,10 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
+			
+			shortest = Long.MAX_VALUE;
+			smallest = null;
+						
 			for(int i = 0; i < binodes.size(); i++) {
 				node = binodes.get(i);
 				node.key = node.key - i;
@@ -571,7 +596,7 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 			// Bidirectional Dijkstra
 			BiRedBlackNode node1 = sourceNode;
 			BiRedBlackNode node2 = targetNode;
-			while(node1.id != targetNode.id || node2.id != sourceNode.id) {
+			while(node1.id != targetNode.id && node2.id != sourceNode.id) {
 				node1 = (BiRedBlackNode) tree.deleteMin();
 				nodesChecked++;
 				if(node1.deleted2) {
@@ -584,15 +609,25 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 				if(node2.deleted) {
 					break;
 				}
+				if(node1.pathLength + node2.pathLength2 >= shortest) {
+					//System.out.println("Test");
+					break;
+				}
 				Edge edge1 = null;
 				BiRedBlackNode decreaseNode1 = null;
 				for(int i = 0; i < node1.edges.size(); i++) {
 					edge1 = node1.edges.get(i);
 					decreaseNode1 = hashMap.get(edge1.nodeID);
+					long newMin = 0;
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
+						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = newMin;
+							smallest = decreaseNode1;
+						}
 						if(decreaseNode1.inserted) {
 							tree.decreaseKey(decreaseNode1, newPathLenght);
 						}
@@ -608,10 +643,16 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 				for(int i = 0; i < node2.edges2.size(); i++) {
 					edge2 = node2.edges2.get(i);
 					decreaseNode2 = hashMap.get(edge2.nodeID);
+					long newMin = 0;
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
+						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = newMin;
+							smallest = decreaseNode2;
+						}
 						if(decreaseNode2.inserted2) {
 							biTree.decreasekey(decreaseNode2, newPathLenght);
 						}
@@ -627,9 +668,7 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 			ArrayList<RedBlackNode> path = new ArrayList<RedBlackNode>();
 			
 			// Run through all nodes and find smallest pathLenght + pathLength2
-			BiRedBlackNode smallest = null;
-			shortest = Long.MAX_VALUE;
-			long val = 0;
+			/*long val = 0;
 			for(int i = 0; i < binodes.size(); i++) {
 				node = binodes.get(i);
 				val = node.pathLength + node.pathLength2;
@@ -637,7 +676,7 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 					shortest = val;
 					smallest = node;
 				}
-			}
+			}*/
 			
 			// Found a node on shortest path, follow it
 			node = smallest;
