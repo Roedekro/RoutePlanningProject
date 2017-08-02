@@ -35,8 +35,10 @@ public class Main {
 				//dijkstraDelayedInsert(input,source,target,runs);
 				//bidirectionalDijkstra(input,source,target,runs);
 				//bidirectionalDijkstraDelayedInsert(input,source,target,runs);
-				aStarEuclidian(input,source,target,runs);
+				//aStarEuclidian(input,source,target,runs);
 				//aStarBiDirectionalEuclidian(input, source, target, runs);
+				//ALT(input,source,target,runs,16,1,0,1);
+				ALT(input,source,target,runs,16,4,0,2);
 				
 				
 			} catch (IOException e) {
@@ -44,6 +46,23 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	//typeOfLandMark 1 = random, 2 = farthest, 3 = farthest optimized
+	public static void ALT(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		long ret = alt.ALTBidirectionalSearch(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALT.txt"));
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
 	}
 	
 	public static void aStarEuclidian(String input, long source, long target, int runs) throws FileNotFoundException, IOException {

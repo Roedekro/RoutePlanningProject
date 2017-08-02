@@ -134,7 +134,7 @@ private static int shift = 33;
 					decreaseNode = hashMap.get(edge.nodeID);
 					// Calculate potential
 					if(decreaseNode.potential == 0) {
-						node.potential = (long) (calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon) / cmHour);
+						decreaseNode.potential = (long) (calculateDistance(decreaseNode.lat, decreaseNode.lon, targetNode.lat, targetNode.lon) / cmHour);
 					}
 					// Give discount if we move towards target
 					// and likewhise give penalty if we move away
@@ -330,7 +330,7 @@ private static int shift = 33;
 					break;
 				}
 				if(node1.potential == 0) {
-					node1.potential = (calculateDistance(node1.lat,node1.lon,targetNode.lat,targetNode.lon) - calculateDistance(sourceNode.lat,sourceNode.lon,node1.lat,node1.lon))/2;
+					node1.potential = (long) ((calculateDistance(node1.lat,node1.lon,targetNode.lat,targetNode.lon) - calculateDistance(sourceNode.lat,sourceNode.lon,node1.lat,node1.lon))/(2*cmHour));
 				}
 				node2 = (AStarNode) biTree.deleteMin();
 				nodesChecked++;
@@ -338,10 +338,10 @@ private static int shift = 33;
 					break;
 				}
 				if(node2.potential2 == 0) {
-					node2.potential2 = (calculateDistance(sourceNode.lat,sourceNode.lon,node2.lat,node2.lon) - calculateDistance(node2.lat,node2.lon,targetNode.lat,targetNode.lon))/2;
+					node2.potential2 = (long) ((calculateDistance(sourceNode.lat,sourceNode.lon,node2.lat,node2.lon) - calculateDistance(node2.lat,node2.lon,targetNode.lat,targetNode.lon))/(2*cmHour));
 				}
 				if(node1.potential+node1.potential2 >= shortest || node2.potential+node2.potential2 >= shortest) {
-					System.out.println("TEST "+shortest);
+					//System.out.println("TEST "+shortest);
 					break;
 				}
 				node1.deleted = true;
@@ -351,6 +351,9 @@ private static int shift = 33;
 				for(int i = 0; i < node1.edges.size(); i++) {
 					edge1 = node1.edges.get(i);
 					decreaseNode1 = hashMap.get(edge1.nodeID);
+					if(decreaseNode1.potential == 0) {
+						decreaseNode1.potential = (long) ((calculateDistance(decreaseNode1.lat,decreaseNode1.lon,targetNode.lat,targetNode.lon) - calculateDistance(sourceNode.lat,sourceNode.lon,decreaseNode1.lat,decreaseNode1.lon))/(2*cmHour));
+					}
 					long newKeyLength = node1.pathLength + edge1.travelTime + 
 							(decreaseNode1.potential - node1.potential);
 					if(!decreaseNode1.deleted && newKeyLength < decreaseNode1.keyLength) {
@@ -377,6 +380,9 @@ private static int shift = 33;
 				for(int i = 0; i < node2.edges2.size(); i++) {
 					edge2 = node2.edges2.get(i);
 					decreaseNode2 = hashMap.get(edge2.nodeID);
+					if(decreaseNode2.potential2 == 0) {
+						decreaseNode2.potential2 = (long) ((calculateDistance(sourceNode.lat,sourceNode.lon,decreaseNode2.lat,decreaseNode2.lon) - calculateDistance(decreaseNode2.lat,decreaseNode2.lon,targetNode.lat,targetNode.lon))/(2*cmHour));
+					}
 					long newKeyLength = node2.pathLength2 + edge2.travelTime + 
 							(decreaseNode2.potential2 - node2.potential2);
 					if(!decreaseNode2.deleted2 && newKeyLength < decreaseNode2.keyLength2) {
