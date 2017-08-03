@@ -340,8 +340,12 @@ private static int shift = 33;
 				if(node2.potential2 == 0) {
 					node2.potential2 = (long) ((calculateDistance(sourceNode.lat,sourceNode.lon,node2.lat,node2.lon) - calculateDistance(node2.lat,node2.lon,targetNode.lat,targetNode.lon))/(2*cmHour));
 				}
-				if(node1.potential+node1.potential2 >= shortest || node2.potential+node2.potential2 >= shortest) {
+				// Was wrong, its obv. not the potentials.
+				/*if(node1.potential+node1.potential2 >= shortest || node2.potential+node2.potential2 >= shortest) {
 					//System.out.println("TEST "+shortest);
+					break;
+				}*/
+				if(node1.pathLength + node2.pathLength2 >= shortest) {
 					break;
 				}
 				node1.deleted = true;

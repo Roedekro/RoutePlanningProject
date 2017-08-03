@@ -37,9 +37,11 @@ public class Main {
 				//bidirectionalDijkstraDelayedInsert(input,source,target,runs);
 				//aStarEuclidian(input,source,target,runs);
 				//aStarBiDirectionalEuclidian(input, source, target, runs);
-				//ALT(input,source,target,runs,16,1,0,1);
-				ALT(input,source,target,runs,16,4,0,2);
-				
+				//ALTWorksButShouldnt(input,source,target,runs,16,1,0,1);
+				//ALTWorksButShouldnt(input,source,target,runs,16,4,0,2);
+				//ALT(input,source,target,runs,16,4,0,2);
+				//ALTSymmetric(input,source,target,runs,16,4,0,2);
+				ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -54,6 +56,54 @@ public class Main {
 		long ret = alt.ALTBidirectionalSearch(input, source, target, k, u, o, type, runs);
 		ArrayList<ALTNode> nodes = alt.check;
 		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALT.txt"));
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
+	}
+	
+	public static void ALTSymmetric(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		long ret = alt.ALTBidirectionalSearchSymmetric(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTSymmetric.txt"));
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
+	}
+	
+	public static void ALTSymmetricLowerBound(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		long ret = alt.ALTBidirectionalSearchSymmetricLowerBounding(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTSymmetricLowerBound.txt"));
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
+	}
+	
+	public static void ALTWorksButShouldnt(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		long ret = alt.ALTBidirectionalWorksButShouldnt(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTWorksButShouldnt.txt"));
 		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
 		ALTNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
