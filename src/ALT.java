@@ -54,10 +54,12 @@ public class ALT {
 		ALTNode sourceNode = null;
 		ALTNode targetNode = null;
 		ALTNode node = null;
+		HashMap<Long,ALTNode> hashMap = new HashMap<Long,ALTNode>();
 		
 		for(int i = 0; i < normalNodes.size(); i++) {
 			node = new ALTNode(normalNodes.get(i));
 			nodes.add(node);
+			hashMap.put(node.id, node);
 			if(node.id == source) {
 				sourceNode = node;
 			}
@@ -67,12 +69,12 @@ public class ALT {
 		}
 		
 		// Build up hashmap
-		HashMap<Long,ALTNode> hashMap = new HashMap<Long,ALTNode>();
+		/*HashMap<Long,ALTNode> hashMap = new HashMap<Long,ALTNode>();
 		// Fill in hashmap
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
 			hashMap.put(node.id, node);
-		}
+		}*/
 		// Fill in reverse edges
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);

@@ -31,6 +31,7 @@ public class Main {
 				
 				// Correct output is 203260
 				// Other numbers will vary, either 77 or 78 and xxxx.
+				// This is because bidirectional will add the shortest node twice to output.
 				//normalDijkstra(input,source,target,runs);
 				//dijkstraDelayedInsert(input,source,target,runs);
 				//bidirectionalDijkstra(input,source,target,runs);
@@ -41,13 +42,20 @@ public class Main {
 				//ALTWorksButShouldnt(input,source,target,runs,16,4,0,2);
 				//ALT(input,source,target,runs,16,4,0,2);
 				//ALTSymmetric(input,source,target,runs,16,4,0,2);
-				ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
+				//ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
+				CHNaive(input,source,target,runs);
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static void CHNaive(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+		CH ch = new CH();
+		long ret = ch.CHNaivebyNodeID(input, source, target, runs);
+		System.out.println(ret);
 	}
 	
 	//typeOfLandMark 1 = random, 2 = farthest, 3 = farthest optimized
