@@ -43,7 +43,8 @@ public class Main {
 				//ALT(input,source,target,runs,16,4,0,2);
 				//ALTSymmetric(input,source,target,runs,16,4,0,2);
 				//ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
-				CHNaive(input,source,target,runs);
+				//CHNaive(input,source,target,runs);
+				CHNaive(input,target,source,runs);
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
