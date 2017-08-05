@@ -20,7 +20,7 @@ public class CH {
 	private long queryTotal = 0;
 	long preprocessTime = 0;
 	long queryTime = 0;
-	ArrayList<ALTNode> check = null;
+	ArrayList<CHNode> check = null;
 	long nodesChecked = 0;
 	
 	public long CHNaivebyNodeID(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
@@ -75,7 +75,7 @@ public class CH {
 			
 			node = nodes.get(i);
 			
-			System.out.println("=== Contracting node "+node.id+" "+i);
+			//System.out.println("=== Contracting node "+node.id+" "+i);
 			
 			// Add neighbours
 			ArrayList<CHNode> neighboursIngoing = new ArrayList<CHNode>(); // List of higher ranked neighbours
@@ -113,14 +113,14 @@ public class CH {
 			for(int j = 0; j < node.shortcutsBackward.size(); j++) {
 				nShort = node.shortcutsBackward.get(j);
 				neighbour = hashMap.get(nShort.nodeID);
-				//System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
+				////System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
 				if(!neighbour.deletedFromGraph) {
 					neighbour.edgeDistanceFrom = nShort.travelTime;
 					neighboursIngoing.add(neighbour);
 				}
 			}
 			
-			System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
+			//System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
 			
 			// Now for all ingoing edges (w,v) find the shortest path excluding v
 			// from w to all w' in the outgoing edges (v,w').
@@ -131,7 +131,7 @@ public class CH {
 				for(int j = 0; j < neighboursIngoing.size(); j++) {
 					ArrayList<CHNode> toBeReset = new ArrayList<CHNode>();
 					localSource = neighboursIngoing.get(j);
-					System.out.println(node.id+" Checking ingoing from "+localSource.id);
+					//System.out.println(node.id+" Checking ingoing from "+localSource.id);
 					localSource.key = 0;
 					localSource.pathLength = 0;
 					RedBlackTree tree = new RedBlackTree();
@@ -143,7 +143,7 @@ public class CH {
 					while(counter < hoplimit && targetCounter > 0 && tree.size > 0) {
 						counter++;
 						min = (CHNode) tree.deleteMin();
-						System.out.println("Extracted "+min.id);
+						//System.out.println("Extracted "+min.id);
 						if(neighboursOutgoing.contains(min)) {
 							targetCounter--;
 						}
@@ -159,11 +159,11 @@ public class CH {
 								decreaseNode.path = min;
 								decreaseNode.pathLength = newPathLength;
 								if(decreaseNode.inserted) {
-									System.out.println("Decreasing "+decreaseNode.id);
+									//System.out.println("Decreasing "+decreaseNode.id);
 									tree.decreaseKey(decreaseNode, newPathLength);
 								}
 								else {
-									System.out.println("Inserting "+decreaseNode.id);
+									//System.out.println("Inserting "+decreaseNode.id);
 									toBeReset.add(decreaseNode);
 									decreaseNode.key = calcKey(newPathLength,decreaseNode.id);
 									decreaseNode.inserted = true;
@@ -183,11 +183,11 @@ public class CH {
 								decreaseNode.path = min;
 								decreaseNode.pathLength = newPathLength;
 								if(decreaseNode.inserted) {
-									System.out.println("Decreasing "+decreaseNode.id);
+									//System.out.println("Decreasing "+decreaseNode.id);
 									tree.decreaseKey(decreaseNode, newPathLength);
 								}
 								else {
-									System.out.println("Inserting "+decreaseNode.id);
+									//System.out.println("Inserting "+decreaseNode.id);
 									toBeReset.add(decreaseNode);
 									decreaseNode.key = calcKey(newPathLength,decreaseNode.id);
 									decreaseNode.inserted = true;
@@ -200,7 +200,7 @@ public class CH {
 					// Dijkstra completed, evaluate
 					for(int x = 0; x < neighboursOutgoing.size(); x++) {
 						min = neighboursOutgoing.get(x);
-						System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistanceTo+ localSource.edgeDistanceFrom));
+						//System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistanceTo+ localSource.edgeDistanceFrom));
 						if(min.pathLength > min.edgeDistanceTo + localSource.edgeDistanceFrom) {
 							// Found shortcut
 							// long id, long fromID, int travelTime, long level, boolean upward
@@ -233,9 +233,9 @@ public class CH {
 					toNode = hashMap.get(shortcut.nodeID);
 					reverseShortcut = new Shortcut(shortcut,fromNode.hierarcyLevel);
 
-					System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
+					//System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
 					fromNode.shortcutsForward.add(shortcut);
-					System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
+					//System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
 					toNode.shortcutsBackward.add(reverseShortcut);
 				}	
 			}
@@ -244,7 +244,7 @@ public class CH {
 		}
 		
 		// All nodes now contracted	
-		System.out.println("=============== Dijkstra");
+		//System.out.println("=============== Dijkstra");
 		
 		CHNode meet = null;
 		long shortest = Long.MAX_VALUE;
@@ -275,32 +275,34 @@ public class CH {
 		while(tree.size > 0 || biTree.size > 0) {
 			if(tree.size > 0) {
 				node1 = (CHNode) tree.deleteMin();
-				System.out.println("Extracted from 1 "+node1.id);
-				System.out.println(node1.edges.size()+" "+node1.edges2.size()+" "+
-				node1.shortcutsForward.size()+" "+node1.shortcutsBackward.size());
+				//System.out.println("Extracted from 1 "+node1.id);
+				//System.out.println(node1.edges.size()+" "+node1.edges2.size()+" "+
+						node1.shortcutsForward.size()+" "+node1.shortcutsBackward.size());
+				nodesChecked++;
 			}
 			node1.deleted = true;
 			if(biTree.size > 0) {
 				node2 = (CHNode) biTree.deleteMin();
-				System.out.println("Extracted from 2 "+node2.id);
-				System.out.println(node2.edges.size()+" "+node2.edges2.size()+" "+
+				//System.out.println("Extracted from 2 "+node2.id);
+				//System.out.println(node2.edges.size()+" "+node2.edges2.size()+" "+
 						node2.shortcutsForward.size()+" "+node2.shortcutsBackward.size());
+				nodesChecked++;
 			}
 			node2.deleted2 = true;
 			/*if(node1.deleted2) {
 				meet = node1;
 				shortest = node1.pathLength + node1.pathLength2;
-				System.out.println("Met1");
+				//System.out.println("Met1");
 				break;
 			}
 			if(node2.deleted) {
 				meet = node2;
 				shortest = node2.pathLength + node2.pathLength2;
-				System.out.println("Met2");
+				//System.out.println("Met2");
 				break;
 			}*/
 			if(node1.pathLength >= shortest && node2.pathLength2 >= shortest) {
-				System.out.println("Break");
+				//System.out.println("Break");
 				break;
 			}
 
@@ -313,7 +315,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting edge1 from "+node1.id+" to "+decreaseNode1.id+" "+edge1.travelTime);
+						//System.out.println("1 Inserting edge1 from "+node1.id+" to "+decreaseNode1.id+" "+edge1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -339,7 +341,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + shortcut1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting forward shortcut from "+ node1.id+" to "+decreaseNode1.id+" "+shortcut1.travelTime);
+						//System.out.println("1 Inserting forward shortcut from "+ node1.id+" to "+decreaseNode1.id+" "+shortcut1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -367,7 +369,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel > node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting edge2 from "+decreaseNode2.id+" to "+node2.id+" "+edge2.travelTime);
+						//System.out.println("2 Inserting edge2 from "+decreaseNode2.id+" to "+node2.id+" "+edge2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -394,7 +396,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel > node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + shortcut2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting backward shortcut from "+decreaseNode2.id+" to "+node2.id+" "+shortcut2.travelTime);
+						//System.out.println("2 Inserting backward shortcut from "+decreaseNode2.id+" to "+node2.id+" "+shortcut2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -418,13 +420,84 @@ public class CH {
 		
 		// We found a shortest node, but in order to retrieve the shortest path we need to "unpack" it
 		// by recursively turning shortcuts into sub-shortcuts/edges until only edges remains.
+
+		node = smallest;
+		CHNode nextNode = null;
+		
+		// Reverse
+		while(node.id != sourceNode.id) {
+			nextNode = (CHNode) node.path;
+			node.prev = nextNode;
+			nextNode.next = node;
+			node = nextNode;
+		}
+		// Forward
+		node = smallest;
+		while(node.id != targetNode.id) {
+			nextNode = (CHNode) node.path2;
+			node.next = nextNode;
+			nextNode.prev = node;
+			node = nextNode;
+		}
+		
+		// Unpack the route to source
+		unpack(sourceNode, targetNode, hashMap);
+		
+		check = new ArrayList<CHNode>();
+		node = sourceNode;
+		while(node.id != targetNode.id) {
+			check.add(node);
+			node = node.next;
+		}
+		check.add(targetNode);
 		
 		
-		System.out.println("Sizes "+tree.size + " " + biTree.size);
-		//System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
-		System.out.println(shortest);
-		System.out.println("Shortest = "+smallest.id+" "+smallest.pathLength+" "+smallest.pathLength2);
+		//System.out.println("Sizes "+tree.size + " " + biTree.size);
+		////System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
+		//System.out.println(shortest);
+		//System.out.println("Shortest = "+smallest.id+" "+smallest.pathLength+" "+smallest.pathLength2);
 		return shortest;
+	}
+	
+	// Unpacks the shortcuts in a forward direction
+	public void unpack(CHNode node, CHNode targetNode, HashMap<Long,CHNode> hashMap ) {
+		CHNode nextNode = node.next;
+		long nextID = nextNode.id;
+		boolean edgeExists = false;
+		Edge edge = null;
+		for(int i = 0; i < node.edges.size(); i++) {
+			edge = node.edges.get(i);
+			if(edge.nodeID == nextID) {
+				edgeExists = true;
+			}
+		}
+		// If we have reduced the path to an edge
+		if(edgeExists && nextNode.id != targetNode.id) {
+			unpack(nextNode, targetNode, hashMap);
+		}
+		else {
+			// Unpack shortcut
+			Shortcut shortcut = null;
+			for(int i = 0; i < node.shortcutsForward.size(); i++) {
+				shortcut = node.shortcutsForward.get(i);
+				if(shortcut.nodeID == nextNode.id) {
+					break;
+				}
+			}
+			CHNode insert = hashMap.get(shortcut.nodeID);
+			node.next = insert;
+			insert.prev = node;
+			insert.next = nextNode;
+			nextNode.prev = insert;
+			unpack(insert,targetNode,hashMap);
+			unpack(nextNode,targetNode,hashMap);
+		}
+	}
+
+	
+	// To access bottom of above function fast
+	public void Bottom() {
+		
 	}
 	
 	/*public long CHNaivebyNodeIDSecondBackup(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
@@ -479,7 +552,7 @@ public class CH {
 			
 			node = nodes.get(i);
 			
-			System.out.println("=== Contracting node "+node.id+" "+i);
+			//System.out.println("=== Contracting node "+node.id+" "+i);
 			
 			// Add neighbours
 			ArrayList<CHNode> neighboursIngoing = new ArrayList<CHNode>(); // List of higher ranked neighbours
@@ -520,14 +593,14 @@ public class CH {
 			for(int j = 0; j < node.shortcutsBackward.size(); j++) {
 				nShort = node.shortcutsBackward.get(j);
 				neighbour = hashMap.get(nShort.nodeID);
-				//System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
+				////System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
 				if(!neighbour.deletedFromGraph) {
 					neighbour.edgeDistance = nShort.travelTime;
 					neighboursIngoing.add(neighbour);
 				}
 			}
 			
-			System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
+			//System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
 			
 			// Now for all ingoing edges (w,v) find the shortest path excluding v
 			// from w to all w' in the outgoing edges (v,w').
@@ -538,7 +611,7 @@ public class CH {
 				for(int j = 0; j < neighboursIngoing.size(); j++) {
 					ArrayList<CHNode> toBeReset = new ArrayList<CHNode>();
 					localSource = neighboursIngoing.get(j);
-					System.out.println(node.id+" Checking ingoing from "+localSource.id);
+					//System.out.println(node.id+" Checking ingoing from "+localSource.id);
 					localSource.key = 0;
 					localSource.pathLength = 0;
 					RedBlackTree tree = new RedBlackTree();
@@ -550,7 +623,7 @@ public class CH {
 					while(counter < hoplimit && targetCounter > 0 && tree.size > 0) {
 						counter++;
 						min = (CHNode) tree.deleteMin();
-						System.out.println("Extracted "+min.id);
+						//System.out.println("Extracted "+min.id);
 						if(neighboursOutgoing.contains(min)) {
 							targetCounter--;
 						}
@@ -566,11 +639,11 @@ public class CH {
 								decreaseNode.path = min;
 								decreaseNode.pathLength = newPathLength;
 								if(decreaseNode.inserted) {
-									System.out.println("Decreasing "+decreaseNode.id);
+									//System.out.println("Decreasing "+decreaseNode.id);
 									tree.decreaseKey(decreaseNode, newPathLength);
 								}
 								else {
-									System.out.println("Inserting "+decreaseNode.id);
+									//System.out.println("Inserting "+decreaseNode.id);
 									toBeReset.add(decreaseNode);
 									decreaseNode.key = calcKey(newPathLength,decreaseNode.id);
 									decreaseNode.inserted = true;
@@ -590,11 +663,11 @@ public class CH {
 								decreaseNode.path = min;
 								decreaseNode.pathLength = newPathLength;
 								if(decreaseNode.inserted) {
-									System.out.println("Decreasing "+decreaseNode.id);
+									//System.out.println("Decreasing "+decreaseNode.id);
 									tree.decreaseKey(decreaseNode, newPathLength);
 								}
 								else {
-									System.out.println("Inserting "+decreaseNode.id);
+									//System.out.println("Inserting "+decreaseNode.id);
 									toBeReset.add(decreaseNode);
 									decreaseNode.key = calcKey(newPathLength,decreaseNode.id);
 									decreaseNode.inserted = true;
@@ -607,7 +680,7 @@ public class CH {
 					// Dijkstra completed, evaluate
 					for(int x = 0; x < neighboursOutgoing.size(); x++) {
 						min = neighboursOutgoing.get(x);
-						System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistance+ localSource.edgeDistance));
+						//System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistance+ localSource.edgeDistance));
 						if(min.pathLength > min.edgeDistance + localSource.edgeDistance) {
 							// Found shortcut
 							// long id, long fromID, int travelTime, long level, boolean upward
@@ -641,9 +714,9 @@ public class CH {
 					fromNode = hashMap.get(shortcut.fromID);
 					toNode = hashMap.get(shortcut.nodeID);
 
-					System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
+					//System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
 					fromNode.shortcutsForward.add(shortcut);
-					System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
+					//System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
 					toNode.shortcutsBackward.add(reverseShortcut);
 
 	
@@ -667,7 +740,7 @@ public class CH {
 			for(int j = 0; j < node.shortcutsForward)
 		}*/
 		
-		//System.out.println("=============== Dijkstra");
+		////System.out.println("=============== Dijkstra");
 		
 		/*CHNode meet = null;
 		long shortest = Long.MAX_VALUE;
@@ -698,24 +771,24 @@ public class CH {
 		while(tree.size > 0 || biTree.size > 0) {
 			if(tree.size > 0) {
 				node1 = (CHNode) tree.deleteMin();
-				System.out.println("Extracted from 1 "+node1.id);
+				//System.out.println("Extracted from 1 "+node1.id);
 			}
 			node1.deleted = true;
 			if(biTree.size > 0) {
 				node2 = (CHNode) biTree.deleteMin();
-				System.out.println("Extracted from 2 "+node2.id);
+				//System.out.println("Extracted from 2 "+node2.id);
 			}
 			node2.deleted2 = true;
 			if(node1.deleted2) {
 				meet = node1;
 				shortest = node1.pathLength + node1.pathLength2;
-				System.out.println("Met1");
+				//System.out.println("Met1");
 				break;
 			}
 			if(node2.deleted) {
 				meet = node2;
 				shortest = node2.pathLength + node2.pathLength2;
-				System.out.println("Met2");
+				//System.out.println("Met2");
 				break;
 			}
 			
@@ -727,7 +800,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting edge1 from "+node1.id+" to "+decreaseNode1.id+" "+edge1.travelTime);
+						//System.out.println("1 Inserting edge1 from "+node1.id+" to "+decreaseNode1.id+" "+edge1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -752,7 +825,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting edge2 from "+decreaseNode1.id+" to "+node1.id+" "+edge1.travelTime);
+						//System.out.println("1 Inserting edge2 from "+decreaseNode1.id+" to "+node1.id+" "+edge1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -780,7 +853,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + shortcut1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting forward shortcut from "+ node1.id+" to "+decreaseNode1.id+" "+shortcut1.travelTime);
+						//System.out.println("1 Inserting forward shortcut from "+ node1.id+" to "+decreaseNode1.id+" "+shortcut1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -806,7 +879,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + shortcut1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting backward shortcut from "+decreaseNode1.id+" to "+node1.id+" "+shortcut1.travelTime);
+						//System.out.println("1 Inserting backward shortcut from "+decreaseNode1.id+" to "+node1.id+" "+shortcut1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						newMin = decreaseNode1.pathLength + decreaseNode1.pathLength2;
@@ -834,7 +907,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting edge2 from "+decreaseNode2.id+" to "+node2.id+" "+edge2.travelTime);
+						//System.out.println("2 Inserting edge2 from "+decreaseNode2.id+" to "+node2.id+" "+edge2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -859,7 +932,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting edge1 from "+node2.id+" to "+node2.id+decreaseNode2.id+" "+edge2.travelTime);
+						//System.out.println("2 Inserting edge1 from "+node2.id+" to "+node2.id+decreaseNode2.id+" "+edge2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -888,7 +961,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + shortcut2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting backward shortcut from "+decreaseNode2.id+" to "+node2.id+" "+shortcut2.travelTime);
+						//System.out.println("2 Inserting backward shortcut from "+decreaseNode2.id+" to "+node2.id+" "+shortcut2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -913,7 +986,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + shortcut2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting forward shortcut from "+node2.id+" to "+node+decreaseNode2.id+" "+shortcut2.travelTime);
+						//System.out.println("2 Inserting forward shortcut from "+node2.id+" to "+node+decreaseNode2.id+" "+shortcut2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						newMin = decreaseNode2.pathLength + decreaseNode2.pathLength2;
@@ -933,9 +1006,9 @@ public class CH {
 				}
 			}*/
 		/*}
-		System.out.println("Sizes "+tree.size + " " + biTree.size);
-		System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
-		System.out.println("Shortet = "+smallest.id+" "+smallest.pathLength+" "+smallest.pathLength2);
+		//System.out.println("Sizes "+tree.size + " " + biTree.size);
+		//System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
+		//System.out.println("Shortet = "+smallest.id+" "+smallest.pathLength+" "+smallest.pathLength2);
 		return shortest;
 	}
 	
@@ -991,7 +1064,7 @@ public class CH {
 			
 			node = nodes.get(i);
 			
-			System.out.println("=== Contracting node "+node.id+" "+i);
+			//System.out.println("=== Contracting node "+node.id+" "+i);
 			
 			// Add neighbours
 			ArrayList<CHNode> neighboursIngoing = new ArrayList<CHNode>(); // List of higher ranked neighbours
@@ -1031,14 +1104,14 @@ public class CH {
 			for(int j = 0; j < node.shortcutsBackward.size(); j++) {
 				nShort = node.shortcutsBackward.get(j);
 				neighbour = hashMap.get(nShort.nodeID);
-				//System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
+				////System.out.println("In "+neighbour.id+" "+neighbour.deletedFromGraph);
 				if(!neighbour.deletedFromGraph) {
 					neighbour.edgeDistance = nShort.travelTime;
 					neighboursIngoing.add(neighbour);
 				}
 			}
 			
-			System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
+			//System.out.println(node.id+" "+neighboursIngoing.size()+" "+neighboursOutgoing.size());
 			
 			// Now for all ingoing edges (w,v) find the shortest path excluding v
 			// from w to all w' in the outgoing edges (v,w').
@@ -1049,7 +1122,7 @@ public class CH {
 				for(int j = 0; j < neighboursIngoing.size(); j++) {
 					ArrayList<CHNode> toBeReset = new ArrayList<CHNode>();
 					localSource = neighboursIngoing.get(j);
-					System.out.println(node.id+" Checking ingoing from "+localSource.id);
+					//System.out.println(node.id+" Checking ingoing from "+localSource.id);
 					localSource.key = 0;
 					localSource.pathLength = 0;
 					RedBlackTree tree = new RedBlackTree();
@@ -1061,7 +1134,7 @@ public class CH {
 					while(counter < hoplimit && targetCounter > 0 && tree.size > 0) {
 						counter++;
 						min = (CHNode) tree.deleteMin();
-						System.out.println("Extracted "+min.id);
+						//System.out.println("Extracted "+min.id);
 						if(neighboursOutgoing.contains(min)) {
 							targetCounter--;
 						}
@@ -1077,11 +1150,11 @@ public class CH {
 								decreaseNode.path = min;
 								decreaseNode.pathLength = newPathLength;
 								if(decreaseNode.inserted) {
-									System.out.println("Decreasing "+decreaseNode.id);
+									//System.out.println("Decreasing "+decreaseNode.id);
 									tree.decreaseKey(decreaseNode, newPathLength);
 								}
 								else {
-									System.out.println("Inserting "+decreaseNode.id);
+									//System.out.println("Inserting "+decreaseNode.id);
 									toBeReset.add(decreaseNode);
 									decreaseNode.key = calcKey(newPathLength,decreaseNode.id);
 									decreaseNode.inserted = true;
@@ -1116,7 +1189,7 @@ public class CH {
 					// Dijkstra completed, evaluate
 					for(int x = 0; x < neighboursOutgoing.size(); x++) {
 						min = neighboursOutgoing.get(x);
-						System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistance+ localSource.edgeDistance));
+						//System.out.println(min.id+" "+min.pathLength+" "+(min.edgeDistance+ localSource.edgeDistance));
 						if(min.pathLength > min.edgeDistance + localSource.edgeDistance) {
 							// Found shortcut
 							// long id, long fromID, int travelTime, long level, boolean upward
@@ -1149,44 +1222,44 @@ public class CH {
 				reverse = hashMap.get(shortcut.nodeID);
 				if(shortcut.nodeID != shortcut.fromID) {
 					
-					System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
+					//System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
 					/*neighbour.shortcutsForward.add(shortcut);
-					System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
+					//System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
 					reverse.shortcutsBackward.add(reverseShortcut);*/
 					
 					
 					/*if(reverse.id >= neighbour.id) {
-						System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
+						//System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
 						neighbour.shortcutsForward.add(shortcut);
-						System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
+						//System.out.println("Adding shortcut backward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID+" "+reverseShortcut.travelTime);
 						reverse.shortcutsBackward.add(reverseShortcut);
 					}
 					else {
-						System.out.println("Adding shortcut forward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID +" "+reverseShortcut.travelTime);
+						//System.out.println("Adding shortcut forward "+reverseShortcut.fromID+" "+reverseShortcut.nodeID +" "+reverseShortcut.travelTime);
 						neighbour.shortcutsBackward.add(reverseShortcut);
-						System.out.println("Adding shortcut backward "+shortcut.fromID+" "+shortcut.nodeID+" "+shortcut.travelTime);
+						//System.out.println("Adding shortcut backward "+shortcut.fromID+" "+shortcut.nodeID+" "+shortcut.travelTime);
 						reverse.shortcutsForward.add(shortcut);
 					}
 					
 					
 					/*if(neighbour.hierarcyLevel >= shortcut.level) {
-					System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
+					//System.out.println("Adding shortcut forward "+shortcut.fromID+" "+shortcut.nodeID +" "+shortcut.travelTime);
 					neighbour.shortcutsForward.add(shortcut);
 					}
 					else {
 						// Add it as a downward reverse shortcut
 						shortcut = new Shortcut(shortcut);
 						neighbour = hashMap.get(shortcut.fromID);
-						System.out.println("Adding shortcut backward "+shortcut.fromID+" "+shortcut.nodeID+" "+shortcut.travelTime);
+						//System.out.println("Adding shortcut backward "+shortcut.fromID+" "+shortcut.nodeID+" "+shortcut.travelTime);
 						neighbour.shortcutsBackward.add(shortcut);
 					}*/
 				/*}	
 			}
 			
 			// If shortcuts for all ingoing nodes were found we can safely delete the node
-			System.out.println("Check Delete "+node.id+" "+toBeAdded.size()+" "+neighboursOutgoing.size());
+			//System.out.println("Check Delete "+node.id+" "+toBeAdded.size()+" "+neighboursOutgoing.size());
 			/*if(toBeAdded.size() > 0 && neighboursOutgoing.size() != 0) {
-				System.out.println("Deleting "+node.id);
+				//System.out.println("Deleting "+node.id);
 				node.deletedFromGraph = true;
 			}
 	
@@ -1203,7 +1276,7 @@ public class CH {
 			for(int j = 0; j < node.shortcutsForward)
 		}*/
 		
-		//System.out.println("=============== Dijkstra");
+		////System.out.println("=============== Dijkstra");
 		
 		/*CHNode meet = null;
 		// Perform the search.
@@ -1232,12 +1305,12 @@ public class CH {
 		while(tree.size > 0 || biTree.size > 0) {
 			if(tree.size > 0) {
 				node1 = (CHNode) tree.deleteMin();
-				System.out.println("Extracted from 1 "+node1.id);
+				//System.out.println("Extracted from 1 "+node1.id);
 			}
 			node1.deleted = true;
 			if(biTree.size > 0) {
 				node2 = (CHNode) biTree.deleteMin();
-				System.out.println("Extracted from 2 "+node2.id);
+				//System.out.println("Extracted from 2 "+node2.id);
 			}
 			node2.deleted2 = true;
 			if(node1.deleted2) {
@@ -1258,7 +1331,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + edge1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting edge to "+decreaseNode1.id+" "+node1.id+" "+edge1.travelTime);
+						//System.out.println("1 Inserting edge to "+decreaseNode1.id+" "+node1.id+" "+edge1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						if(decreaseNode1.inserted) {
@@ -1279,7 +1352,7 @@ public class CH {
 				if(decreaseNode1.hierarcyLevel > node1.hierarcyLevel) {
 					long newPathLenght = node1.pathLength + shortcut1.travelTime;
 					if(!decreaseNode1.deleted && newPathLenght < decreaseNode1.pathLength) {
-						System.out.println("1 Inserting shortcut to "+decreaseNode1.id+" "+node1.id+" "+shortcut1.travelTime);
+						//System.out.println("1 Inserting shortcut to "+decreaseNode1.id+" "+node1.id+" "+shortcut1.travelTime);
 						decreaseNode1.path = node1;
 						decreaseNode1.pathLength = newPathLenght;
 						if(decreaseNode1.inserted) {
@@ -1302,7 +1375,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + edge2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting edge to "+decreaseNode2.id+" "+node2.id+" "+edge2.travelTime);
+						//System.out.println("2 Inserting edge to "+decreaseNode2.id+" "+node2.id+" "+edge2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						if(decreaseNode2.inserted2) {
@@ -1323,7 +1396,7 @@ public class CH {
 				if(decreaseNode2.hierarcyLevel < node2.hierarcyLevel) {
 					long newPathLenght = node2.pathLength2 + shortcut2.travelTime;
 					if(!decreaseNode2.deleted2 && newPathLenght < decreaseNode2.pathLength2) {
-						System.out.println("2 Inserting shortcut to "+decreaseNode2.id+" "+node2.id+" "+shortcut2.travelTime);
+						//System.out.println("2 Inserting shortcut to "+decreaseNode2.id+" "+node2.id+" "+shortcut2.travelTime);
 						decreaseNode2.path2 = node2;
 						decreaseNode2.pathLength2 = newPathLenght;
 						if(decreaseNode2.inserted2) {
@@ -1338,8 +1411,8 @@ public class CH {
 				}
 			}
 		}
-		System.out.println("Sizes "+tree.size + " " + biTree.size);
-		System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
+		//System.out.println("Sizes "+tree.size + " " + biTree.size);
+		//System.out.println("Meet="+meet.id+" "+meet.pathLength+" "+meet.pathLength2);
 		return meet.pathLength+meet.pathLength2;
 	}*/
 	

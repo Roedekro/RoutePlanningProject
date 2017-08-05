@@ -12,6 +12,9 @@ public class CHNode extends BiRedBlackNode {
 	public long edgeDistanceFrom = 0;
 	public boolean deletedFromGraph = false;
 	
+	public CHNode next = null;
+	public CHNode prev = null;
+	
 	public CHNode(Node node) {
 		super(node);
 	}

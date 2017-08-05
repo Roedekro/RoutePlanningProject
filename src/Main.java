@@ -56,7 +56,17 @@ public class Main {
 	public static void CHNaive(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
 		CH ch = new CH();
 		long ret = ch.CHNaivebyNodeID(input, source, target, runs);
-		System.out.println(ret);
+		ArrayList<CHNode> nodes = ch.check;
+		System.out.println(ret+" "+nodes.size()+" "+ch.nodesChecked);
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"CHNaive.txt"));
+		CHNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
 	}
 	
 	//typeOfLandMark 1 = random, 2 = farthest, 3 = farthest optimized
