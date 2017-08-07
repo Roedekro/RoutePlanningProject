@@ -11,6 +11,7 @@ public class CHNode extends BiRedBlackNode {
 	public long edgeDistanceTo = 0;
 	public long edgeDistanceFrom = 0;
 	public boolean deletedFromGraph = false;
+	public long realPQval = Long.MAX_VALUE;
 	
 	public CHNode next = null;
 	public CHNode prev = null;

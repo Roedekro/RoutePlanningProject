@@ -43,14 +43,32 @@ public class Main {
 				//ALT(input,source,target,runs,16,4,0,2);
 				//ALTSymmetric(input,source,target,runs,16,4,0,2);
 				//ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
+				// Reverse search //CHNaive(input,target,source,runs);
 				//CHNaive(input,source,target,runs);
-				CHNaive(input,target,source,runs);
+				CHByPQ(input, source, target, runs);
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static void CHByPQ(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+		CH ch = new CH();
+		ArrayList<CHNode> nodes1 = ch.CHPreprocess(input);
+		long ret = ch.CHContractionByPQ(nodes1, source, target, runs);
+		ArrayList<CHNode> nodes = ch.check;
+		System.out.println(ret+" "+nodes.size()+" "+ch.nodesChecked);
+		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"CHbyPQ.txt"));
+		CHNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(Long.toString(node.id));
+			out.newLine();
+		}			
+		out.flush();
+		out.close();
 	}
 	
 	public static void CHNaive(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
