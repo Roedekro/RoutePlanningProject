@@ -1,4 +1,6 @@
+import java.awt.Color;
 import java.io.BufferedWriter;
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -15,12 +17,200 @@ public class Main {
 	private static int shift = 33;
 	
 	public static void main(String[] args) {
+		
+		boolean test = true;
+		test = false;
+		if(test) {
+			oldTests();
+		}
+		else {
+			Console console = System.console();
+			String in = null;
+			String input = "Danmark";
+			long source = 279727745L; // Ålborg rådhus
+			long target = 3474332864L; // Københavns rådhus
+			
+			System.out.println("Type help for a list of commands");
+			
+			while(true) {
+				in = console.readLine();
+				String[] split = in.split(" ");
+				int runs = 1;
+				if(split[0].equalsIgnoreCase("help")) {
+					System.out.println("Commands are:");
+					System.out.println("dijkstra <runs> <write 0/1>");
+					System.out.println("dijkstraBidirectional <runs> <write 0/1>");
+					System.out.println("A* <runs> <write 0/1>");
+					System.out.println("A*bidirectional <runs> <write 0/1>");
+					System.out.println("ALT <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
+					System.out.println("ALTmodified <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
+					System.out.println("CH <runs> <write 0/1>");
+					System.out.println("CHnaive <runs>");
+					System.out.println("Create <input> <output> <height> <width> <minLat> <maxLat> <minLon> <maxLon>");
+					System.out.println("Paint <inputImage> <inputNodes> <output> <height> <width> <minLat> <maxLat> <minLon> <maxLon> <colour> (1=blue,2=red,3=green)");
+				}
+				if(split[0].equalsIgnoreCase("exit")) {
+					System.exit(0);
+				}
+				if(split[0].equalsIgnoreCase("dijkstra")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						dijkstraDelayedInsert(input, source, target, runs, write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("dijkstraBidirectional")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						bidirectionalDijkstraDelayedInsert(input, source, target, runs, write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("A*")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						aStarEuclidian(input, source, target, runs,write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("A*bidirectional")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						aStarBiDirectionalEuclidian(input, source, target, runs,write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("ALT")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[6]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						ALT(input, source, target, runs, Integer.parseInt(split[2]), 
+								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
+								Integer.parseInt(split[5]),write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("ALTmodified")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[6]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						ALTWorksButShouldnt(input, source, target, runs, Integer.parseInt(split[2]), 
+								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
+								Integer.parseInt(split[5]),write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("CH")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						CHByPQ(input, source, target, runs,write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("CHnaive")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						CHNaive(input, source, target, runs);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("Create")) {
+					try {
+						createImage(split[1], split[2], Integer.parseInt(split[3]),
+								Integer.parseInt(split[4]), Double.parseDouble(split[5]),
+								Double.parseDouble(split[6]), Double.parseDouble(split[7]), 
+								Double.parseDouble(split[8]));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("Paint")) {
+					try {
+						int col = Integer.parseInt(split[10]);
+						Color color;
+						if(col == 1) {
+							color = Color.BLUE;
+						}
+						else if(col == 2) {
+							color = Color.RED;
+						}
+						else {
+							color = Color.GREEN;
+						}
+						paintOnImage(split[1], split[2], split[3], Integer.parseInt(split[4]),
+								Integer.parseInt(split[5]), Double.parseDouble(split[6]),
+								Double.parseDouble(split[7]), Double.parseDouble(split[8]), 
+								Double.parseDouble(split[9]), color);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else {
+					System.out.println("Unknown Command");
+				}
+			}
+		}
+		
+	}
+	
+	private static void oldTests() {
 		//testRedBlackTree();
 		//testRedBlackTree2();
 		String input = "Roedekro";
 		long source = 2234623300L; // Birkeparken
 		long target = 691716575L; // Lillevang
-		int runs = 1;
+		int runs = 10;
 		
 		File file = new File("Roedekro");
 		System.out.println(file.exists());
@@ -45,7 +235,8 @@ public class Main {
 				//ALTSymmetricLowerBound(input,source,target,runs,16,4,0,2); // Doesnt seem to be correct
 				// Reverse search //CHNaive(input,target,source,runs);
 				//CHNaive(input,source,target,runs);
-				CHByPQ(input, source, target, runs);
+				//CHByPQ(input, source, target, runs);
+				createTextFileFromNodes();
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -54,66 +245,119 @@ public class Main {
 		}
 	}
 	
-	public static void CHByPQ(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+	public static void createImage(String input, String output, int height, int width, double minLat, 
+			double maxLat,	double minLon, double maxLon) throws IOException {
+		
+		Tool tool = new Tool();
+		tool.createAndFillImage(input, output, height, width, minLat, maxLat, minLon, maxLon);
+	}
+	
+	public static void paintOnImage(String inputImage, String inputNodes, String output, int height, int width, double minLat, 
+			double maxLat,	double minLon, double maxLon, Color color) throws IOException {
+		
+		Tool tool = new Tool();
+		tool.drawOnImage(inputImage, inputNodes, output, height, width, minLat, maxLat, minLon, maxLon, color);
+	}
+	
+	public static void createTextFileFromNodes() throws FileNotFoundException, IOException {
+		
+		Tool tool = new Tool();
+		ArrayList<Node> nodes = tool.getNodesAsArrayList("Danmark");
+		BufferedWriter out = new BufferedWriter(new FileWriter("DanmarkNodes.txt"));
+		Node node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(node.id+" "+node.lat+" "+node.lon);
+			out.newLine();
+		}
+		out.write("end");
+		out.flush();
+		out.close();
+	}
+	
+	public static void CHByPQ(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
 		CH ch = new CH();
+		ch.write = write;
 		ArrayList<CHNode> nodes1 = ch.CHPreprocess(input);
 		long ret = ch.CHContractionByPQ(nodes1, source, target, runs);
+		System.out.println("CH by PQ finished");
 		ArrayList<CHNode> nodes = ch.check;
 		System.out.println(ret+" "+nodes.size()+" "+ch.nodesChecked);
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"CHbyPQ.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"CHbyPQ.txt"));
 		CHNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+ch.preprocessTime);
+		System.out.println("Query took "+ch.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "CH1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "CH2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkCHbyPQ.txt", "DKCH.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
 	public static void CHNaive(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
 		CH ch = new CH();
 		long ret = ch.CHNaivebyNodeID(input, source, target, runs);
 		ArrayList<CHNode> nodes = ch.check;
+		System.out.println("CH Naive finished");
 		System.out.println(ret+" "+nodes.size()+" "+ch.nodesChecked);
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"CHNaive.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"CHNaive.txt"));
 		CHNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
 		}			
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+ch.preprocessTime);
+		System.out.println("Query took "+ch.queryTime);
 	}
 	
 	//typeOfLandMark 1 = random, 2 = farthest, 3 = farthest optimized
-	public static void ALT(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+	public static void ALT(String input, long source, long target, int runs, int k, int u, int o, int type, boolean write) throws FileNotFoundException, IOException {
 		ALT alt = new ALT();
+		alt.write = write;
 		long ret = alt.ALTBidirectionalSearch(input, source, target, k, u, o, type, runs);
 		ArrayList<ALTNode> nodes = alt.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALT.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALT.txt"));
+		System.out.println("ALT finished");
 		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
 		ALTNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+alt.preprocessTime);
+		System.out.println("Query took "+alt.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "ALT2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkALT.txt", "DKALT.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
 	public static void ALTSymmetric(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
 		ALT alt = new ALT();
 		long ret = alt.ALTBidirectionalSearchSymmetric(input, source, target, k, u, o, type, runs);
 		ArrayList<ALTNode> nodes = alt.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTSymmetric.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTSymmetric.txt"));
 		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
 		ALTNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
 		}			
 		out.flush();
@@ -124,64 +368,93 @@ public class Main {
 		ALT alt = new ALT();
 		long ret = alt.ALTBidirectionalSearchSymmetricLowerBounding(input, source, target, k, u, o, type, runs);
 		ArrayList<ALTNode> nodes = alt.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTSymmetricLowerBound.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTSymmetricLowerBound.txt"));
 		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
 		ALTNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
 		}			
 		out.flush();
 		out.close();
 	}
 	
-	public static void ALTWorksButShouldnt(String input, long source, long target, int runs, int k, int u, int o, int type) throws FileNotFoundException, IOException {
+	public static void ALTWorksButShouldnt(String input, long source, long target, int runs, int k, int u, int o, int type,boolean write) throws FileNotFoundException, IOException {
 		ALT alt = new ALT();
+		alt.write = write;
 		long ret = alt.ALTBidirectionalWorksButShouldnt(input, source, target, k, u, o, type, runs);
 		ArrayList<ALTNode> nodes = alt.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"ALTWorksButShouldnt.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTWorksButShouldnt.txt"));
+		System.out.println("ALT modified finished");
 		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
 		ALTNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}	
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+alt.preprocessTime);
+		System.out.println("Query took "+alt.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "ALT2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkALTWorksButShouldnt.txt", "DKALTmod.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
-	public static void aStarEuclidian(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+	public static void aStarEuclidian(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
 		AStar aStar = new AStar();
+		aStar.write = write;
 		long ret = aStar.aStarEuclidian(input, source, target, runs);
 		ArrayList<AStarNode> nodes = aStar.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"PathAStarEuclidian.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"PathAStarEuclidian.txt"));
+		System.out.println("A* finished");
 		System.out.println(ret + " " + nodes.size() + " " + aStar.nodesChecked);
 		AStarNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+aStar.preprocessTime);
+		System.out.println("Query took "+aStar.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "AstarNodes.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "DanmarkPathAStarEuclidian.txt", "DKAstar.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
-	public static void aStarBiDirectionalEuclidian(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+	public static void aStarBiDirectionalEuclidian(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
 		AStar aStar = new AStar();
+		aStar.write = write;
 		long ret = aStar.aStarBiDirectionalEuclidian(input, source, target, runs);
 		ArrayList<AStarNode> nodes = aStar.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"PathAStarBiDirectionalEuclidian.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"PathAStarBiDirectionalEuclidian.txt"));
+		System.out.println("A* bidirectional finished");
 		System.out.println(ret + " " + nodes.size() + " " + aStar.nodesChecked);
 		AStarNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+aStar.preprocessTime);
+		System.out.println("Query took "+aStar.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "BidirectionalAstar1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "BidirectionalAstar2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkPathAStarBiDirectionalEuclidian.txt", "DKBidirecionalAstar.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
 	public static void bidirectionalDijkstra(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
@@ -193,27 +466,37 @@ public class Main {
 		RedBlackNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
 		}			
 		out.flush();
 		out.close();
 	}
 	
-	public static void bidirectionalDijkstraDelayedInsert(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+	public static void bidirectionalDijkstraDelayedInsert(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
 		Dijkstra dijkstra = new Dijkstra();
+		dijkstra.write = write;
 		long ret = dijkstra.bidirectionalDijkstraDelayedInsert(input, source, target, runs);
 		ArrayList<RedBlackNode> nodes = dijkstra.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"PathBiDelayed.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"PathBiDelayed.txt"));
+		System.out.println("Dijkstra Bidirectional Delayed Insert finished");
 		System.out.println(ret + " " + nodes.size() + " " + dijkstra.nodesChecked);
 		RedBlackNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-		}			
+		}
+		out.write("end");
 		out.flush();
 		out.close();
+		System.out.println("Preprocess took "+dijkstra.preprocessTime);
+		System.out.println("Query took "+dijkstra.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "BidirectionalDijkstraNodes1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "BidirectionalDijkstraNodes2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkPathBiDelayed.txt", "DKBidirecionalDijkstra.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 	}
 	
 	public static void normalDijkstra(String input, long source, long target, int runs) throws IOException {
@@ -231,7 +514,7 @@ public class Main {
 		}			
 		// Run through path writing out the route
 		while(node.id != source) {
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
 			node = node.path;
 		}
@@ -241,28 +524,29 @@ public class Main {
 		
 	}
 	
-	public static void dijkstraDelayedInsert(String input, long source, long target, int runs) throws IOException {
+	public static void dijkstraDelayedInsert(String input, long source, long target, int runs, boolean write) throws IOException {
 		Dijkstra dijkstra = new Dijkstra();
+		dijkstra.write = write;
 		long ret = dijkstra.dijkstraDelayedInsert(input, source, target, runs);
 		ArrayList<RedBlackNode> nodes = dijkstra.check;
-		BufferedWriter out = new BufferedWriter(new FileWriter("Roedekro"+"Path4.txt"));
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"Path4.txt"));
+		System.out.println("Dijkstra Delayed Insert finished");
 		System.out.println(ret + " " + nodes.size() + " " + dijkstra.nodesChecked);
 		RedBlackNode node = null;
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
-			if(node.id == target) {
-				break;
-			}
-		}			
-		// Run through path writing out the route
-		while(node.id != source) {
-			out.write(Long.toString(node.id));
+			out.write(node.id+" "+node.lat+" "+node.lon);
 			out.newLine();
-			node = node.path;
 		}
-		out.write(Long.toString(node.id));
+		System.out.println("Preprocess took "+dijkstra.preprocessTime);
+		System.out.println("Query took "+dijkstra.queryTime);
+		out.write("end");
 		out.flush();
 		out.close();
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "DijkstraNodes.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "DanmarkPath4.txt", "DKDijkstra.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
 		
 	}
 	

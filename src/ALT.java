@@ -1,4 +1,6 @@
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class ALT {
 	long queryTime = 0;
 	ArrayList<ALTNode> check = null;
 	long nodesChecked = 0;
+	public boolean write = false;
 	
 	/**
 	 * 
@@ -197,7 +200,485 @@ public class ALT {
 		long shortest = Long.MAX_VALUE; // For use below
 		ALTNode smallest = null;
 		
+		BufferedWriter out1 = null;
+		BufferedWriter out2 = null;
+		
+		
 		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
+			
+			out1 = new BufferedWriter(new FileWriter("ALT1.txt"));
+			out2 = new BufferedWriter(new FileWriter("ALT2.txt"));
+			
+			nodesChecked = 0;
+			preprocessStart = System.currentTimeMillis();
+			
+			shortest = Long.MAX_VALUE;
+			smallest = null;
+			
+			for(int i = 0; i < nodes.size(); i++) {
+				node = nodes.get(i);
+				// Reset
+				node.key = Long.MAX_VALUE - i;
+				node.key2 = Long.MAX_VALUE - i;
+				node.colour = false;
+				node.colour2 = false;
+				node.deleted = false;
+				node.deleted2 = false;
+				node.inserted = false;
+				node.inserted2 = false;
+				node.parent = null;
+				node.parent2 = null;
+				node.leftChild = null;
+				node.leftChild2 = null;
+				node.rightChild = null;
+				node.rightChild2 = null;
+				node.path = null;
+				node.path2 = null;
+				node.pathLength = Long.MAX_VALUE;
+				node.pathLength2 = Long.MAX_VALUE;
+				node.realPathLength = Long.MAX_VALUE;
+				node.realPathLength2 = Long.MAX_VALUE;
+				node.keyLength = Long.MAX_VALUE;
+				node.keyLength2 = Long.MAX_VALUE;
+				node.potential = 0;
+				node.potential2 = 0;
+				if(node.id == source) {
+					sourceNode = node;
+					node.key = 0;
+					node.pathLength = 0;
+					node.realPathLength = 0;
+					node.keyLength = 0;
+				}
+				else if(node.id == target) {
+					targetNode = node;
+					node.key2 = 0;
+					node.pathLength2 = 0;
+					node.realPathLength2 = 0;
+					node.keyLength2 = 0;
+				}
+			}
+			
+			preprocessStop = System.currentTimeMillis();
+			//preprocessTotal += (preprocessStop-preprocessStart);
+			
+			queryStart = System.currentTimeMillis();
+			
+			RedBlackTree tree = new RedBlackTree();
+			BiRedBlackTree biTree = new BiRedBlackTree();
+			
+			// Insert
+			tree.insertNode(sourceNode);
+			sourceNode.inserted = true;
+			biTree.insertNode(targetNode);
+			targetNode.inserted2 = true;
+			
+			// Bidirectional Dijkstra
+			ALTNode node1 = sourceNode;
+			ALTNode node2 = targetNode;
+			//while(true) {
+			while(node1.id != targetNode.id && node2.id != sourceNode.id) {
+				node1 = (ALTNode) tree.deleteMin();
+				nodesChecked++;
+				if(write) {
+					out1.write(node1.id+" "+node1.lat+" "+node1.lon);
+					out1.newLine();
+				}
+				if(node1.deleted2) {
+					break;
+				}
+				if(node1.potential == 0) {
+					long forward = 0;
+					long backward = 0;
+					for(int i = 0; i < forwardLandmarks.size(); i++) {
+						int j = forwardLandmarks.get(i);
+						if(forward < node1.landmarksForwardDistances.get(j)) {
+							forward = node1.landmarksForwardDistances.get(j);
+						}
+					}
+					for(int i = 0; i < backwardLandmarks.size(); i++) {
+						int j = backwardLandmarks.get(i);
+						if(backward < node1.landmarksBackwardDistances.get(j)) {
+							backward = node1.landmarksBackwardDistances.get(j);
+						}
+					}
+					/*for(int i = 0; i < node1.landmarksForwardDistances.size(); i++) {
+						if(forward < node1.landmarksForwardDistances.get(i)) {
+							forward = node1.landmarksForwardDistances.get(i);
+						}
+					}
+					for(int i = 0; i < node1.landmarksBackwardDistances.size(); i++) {
+						if(backward < node1.landmarksBackwardDistances.get(i)) {
+							backward = node1.landmarksBackwardDistances.get(i);
+						}
+					}*/
+					node1.potential = (forward-backward)/2;
+				}
+				node2 = (ALTNode) biTree.deleteMin();
+				nodesChecked++;
+				if(write) {
+					out2.write(node2.id+" "+node2.lat+" "+node2.lon);
+					out2.newLine();
+				}
+				if(node2.deleted) {
+					break;
+				}
+				if(node2.potential2 == 0) {
+					long forward = 0;
+					long backward = 0;
+					for(int i = 0; i < forwardLandmarks.size(); i++) {
+						int j = forwardLandmarks.get(i);
+						if(forward < node2.landmarksForwardDistances.get(j)) {
+							forward = node2.landmarksForwardDistances.get(j);
+						}
+					}
+					for(int i = 0; i < backwardLandmarks.size(); i++) {
+						int j = backwardLandmarks.get(i);
+						if(backward < node2.landmarksBackwardDistances.get(j)) {
+							backward = node2.landmarksBackwardDistances.get(j);
+						}
+					}
+					/*for(int i = 0; i < node2.landmarksForwardDistances.size(); i++) {
+						if(forward < node2.landmarksForwardDistances.get(i)) {
+							forward = node2.landmarksForwardDistances.get(i);
+						}
+					}
+					for(int i = 0; i < node2.landmarksBackwardDistances.size(); i++) {
+						if(backward < node2.landmarksBackwardDistances.get(i)) {
+							backward = node2.landmarksBackwardDistances.get(i);
+						}
+					}*/
+					node2.potential2 = (backward - forward)/2;
+				}
+				if(node1.pathLength + node2.pathLength2 >= shortest) {
+					break;
+				}
+				node1.deleted = true;
+				node2.deleted2 = true;
+				Edge edge1 = null;
+				ALTNode decreaseNode1 = null;
+				for(int i = 0; i < node1.edges.size(); i++) {
+					edge1 = node1.edges.get(i);
+					decreaseNode1 = hashMap.get(edge1.nodeID);
+					if(decreaseNode1.potential == 0) {
+						long forward = 0;
+						long backward = 0;
+						for(int x = 0; x < forwardLandmarks.size(); x++) {
+							int y = forwardLandmarks.get(x);
+							if(forward < decreaseNode1.landmarksForwardDistances.get(y)) {
+								forward = decreaseNode1.landmarksForwardDistances.get(y);
+							}
+						}
+						for(int x = 0; x < backwardLandmarks.size(); x++) {
+							int y = backwardLandmarks.get(x);
+							if(backward < decreaseNode1.landmarksBackwardDistances.get(y)) {
+								backward = decreaseNode1.landmarksBackwardDistances.get(y);
+							}
+						}
+						/*for(int j = 0; j < decreaseNode1.landmarksForwardDistances.size(); j++) {
+							if(forward < decreaseNode1.landmarksForwardDistances.get(j)) {
+								forward = decreaseNode1.landmarksForwardDistances.get(j);
+							}
+						}
+						for(int j = 0; j < decreaseNode1.landmarksBackwardDistances.size(); j++) {
+							if(backward < decreaseNode1.landmarksBackwardDistances.get(j)) {
+								backward = decreaseNode1.landmarksBackwardDistances.get(j);
+							}
+						}*/
+						decreaseNode1.potential = (forward-backward)/2;
+					}
+					long newKeyLength = node1.pathLength + edge1.travelTime + 
+							decreaseNode1.potential - node1.potential;
+					if(!decreaseNode1.deleted && newKeyLength < decreaseNode1.keyLength) {
+						decreaseNode1.path = node1;
+						decreaseNode1.pathLength = node1.pathLength + edge1.travelTime + 
+								decreaseNode1.potential - node1.potential;
+						decreaseNode1.realPathLength = node1.realPathLength + edge1.travelTime;
+						decreaseNode1.keyLength = newKeyLength;
+						long newMin = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+							smallest = decreaseNode1;
+						}
+						if(decreaseNode1.inserted) {
+							tree.decreaseKey(decreaseNode1, newKeyLength);
+						}
+						else {
+							decreaseNode1.key = calcKey(newKeyLength,decreaseNode1.id);
+							decreaseNode1.inserted = true;
+							tree.insertNode(decreaseNode1);
+						}
+					}
+				}
+				Edge edge2 = null;
+				ALTNode decreaseNode2 = null;
+				for(int i = 0; i < node2.edges2.size(); i++) {
+					edge2 = node2.edges2.get(i);
+					decreaseNode2 = hashMap.get(edge2.nodeID);
+					if(decreaseNode2.potential2 == 0) {
+						long forward = 0;
+						long backward = 0;
+						for(int x = 0; x < forwardLandmarks.size(); x++) {
+							int y = forwardLandmarks.get(x);
+							if(forward < decreaseNode2.landmarksForwardDistances.get(y)) {
+								forward = decreaseNode2.landmarksForwardDistances.get(y);
+							}
+						}
+						for(int x = 0; x < backwardLandmarks.size(); x++) {
+							int y = backwardLandmarks.get(x);
+							if(backward < decreaseNode2.landmarksBackwardDistances.get(y)) {
+								backward = decreaseNode2.landmarksBackwardDistances.get(y);
+							}
+						}
+						/*for(int j = 0; j < decreaseNode2.landmarksForwardDistances.size(); j++) {
+							if(forward < decreaseNode2.landmarksForwardDistances.get(j)) {
+								forward = decreaseNode2.landmarksForwardDistances.get(j);
+							}
+						}
+						for(int j = 0; j < decreaseNode2.landmarksBackwardDistances.size(); j++) {
+							if(backward < decreaseNode2.landmarksBackwardDistances.get(j)) {
+								backward = decreaseNode2.landmarksBackwardDistances.get(j);
+							}
+						}*/
+						decreaseNode2.potential2 = (backward - forward)/2;
+					}
+					long newKeyLength = node2.pathLength2 + edge2.travelTime + 
+							decreaseNode2.potential2 - node2.potential2;
+					if(!decreaseNode2.deleted2 && newKeyLength < decreaseNode2.keyLength2) {
+						decreaseNode2.path2 = node2;
+						decreaseNode2.pathLength2 = node2.pathLength2 + edge2.travelTime + 
+								decreaseNode2.potential2 - node2.potential2;
+						decreaseNode2.realPathLength2 = node2.realPathLength2 + edge2.travelTime;
+						decreaseNode2.keyLength2 = newKeyLength;
+						long newMin = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+						if(newMin > 0 && newMin < shortest) {
+							shortest = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+							smallest = decreaseNode2;
+						}
+						if(decreaseNode2.inserted2) {
+							biTree.decreasekey(decreaseNode2, newKeyLength);
+						}
+						else {
+							decreaseNode2.key2 = calcKey(newKeyLength,decreaseNode2.id);
+							decreaseNode2.inserted2 = true;
+							biTree.insertNode(decreaseNode2);
+						}
+					}
+				}
+			}
+			
+			ArrayList<ALTNode> path = new ArrayList<ALTNode>();
+			
+			// Found a node on shortest path, follow it
+			node = smallest;
+			while(node.id != sourceNode.id) {
+				path.add(node);
+				node = (ALTNode) node.path;
+			}
+			path.add(node);
+			node = smallest;
+			while(node.id != targetNode.id) {
+				path.add(node);
+				node = (ALTNode) node.path2;
+			}
+			path.add(node);
+			
+			queryStop = System.currentTimeMillis();
+			queryTotal += (queryStop - queryStart);
+			
+			check = path;
+			
+			out1.write("end");
+			out1.flush();
+			out1.close();
+			out2.write("end");
+			out2.flush();
+			out2.close();
+		}
+		
+		preprocessTime = preprocessTotal / runs;
+		queryTime = queryTotal / runs;
+		
+		return (smallest.realPathLength + smallest.realPathLength2);
+		//return shortest;
+	}
+	
+	/**
+	 * 
+	 * @param input Node file
+	 * @param source
+	 * @param target
+	 * @param k number of landmarks
+	 * @param u number of landmarks to use in search
+	 * @param o number of optimizations on landmarks, if relevant
+	 * @param typeOfLandMark typeOfLandMark 1 = random, 2 = farthest, 3 = farthest optimized
+	 * @param runs
+	 * @return length of shortest path in milliseconds
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public long ALTBidirectionalSearchFinalBackup(String input, long source, long target, int k, int u, int o, int typeOfLandMark, int runs) throws FileNotFoundException, IOException {
+		
+		preprocessTotal = 0;
+		queryTotal = 0;
+		preprocessTime = 0;
+		queryTime = 0;
+		
+		preprocessStart = System.currentTimeMillis();
+		
+		Tool tool = new Tool();
+		ArrayList<Node> normalNodes = tool.getNodesAsArrayList(input);
+		ArrayList<ALTNode> nodes = new ArrayList<ALTNode>();
+		ALTNode sourceNode = null;
+		ALTNode targetNode = null;
+		ALTNode node = null;
+		HashMap<Long,ALTNode> hashMap = new HashMap<Long,ALTNode>();
+		
+		for(int i = 0; i < normalNodes.size(); i++) {
+			node = new ALTNode(normalNodes.get(i));
+			nodes.add(node);
+			hashMap.put(node.id, node);
+			if(node.id == source) {
+				sourceNode = node;
+			}
+			else if(node.id == target) {
+				targetNode = node;
+			}
+		}
+		
+		// Build up hashmap
+		/*HashMap<Long,ALTNode> hashMap = new HashMap<Long,ALTNode>();
+		// Fill in hashmap
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			hashMap.put(node.id, node);
+		}*/
+		// Fill in reverse edges
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			Edge edge = null;
+			ALTNode reverseNode = null;
+			for(int j = 0; j < node.edges.size(); j++) {
+				edge = node.edges.get(j);
+				reverseNode = hashMap.get(edge.nodeID);
+				reverseNode.addEdge2(new Edge(node.id, edge.type, edge.distance, edge.maxSpeed, edge.travelTime));
+			}
+		}
+		
+		ArrayList<ALTNode> landmarks = null;
+		if(typeOfLandMark == 1) {
+			landmarks = computeRandomLandmarks(k, nodes);
+		}
+		else if(typeOfLandMark == 2) {
+			landmarks = computeFarthestLandmarks(k, nodes);
+		}
+		else if(typeOfLandMark == 3) {
+			landmarks = computeOptimizedFarthestLandmarks(k, o, nodes);
+		}
+		
+		ArrayList<Integer> invalidLandmarks = calculateDistancesToLandmarks(landmarks, nodes,hashMap);
+		System.out.println("Invalidated "+invalidLandmarks.size() + " landmarks");
+		
+		// Pick which landmarks to use for the forward and reverse search
+		ArrayList<Integer> forwardLandmarks = new ArrayList<Integer>();
+		ArrayList<Integer> backwardLandmarks = new ArrayList<Integer>();
+		long min = Long.MAX_VALUE;
+		int minNode = 0;
+		long dist = 0;
+		long dist2 = 0;
+		boolean contains = false;
+		
+		// Select the u closest landmarks to source for the reverse search.
+		// The landmark must also be further away from the target than the source.
+		for(int i = 0; i < u; i++) {
+			
+			min = Long.MAX_VALUE;
+			minNode = -1;
+			dist = 0;
+			
+			for(int j = 0; j < landmarks.size(); j++) {
+				contains = false;
+				// Brute force check if we already selected this landmark
+				for(int x = 0; x < backwardLandmarks.size(); x++) {
+					if(j == backwardLandmarks.get(x)) {
+						contains = true;
+					}
+				}
+				for(int x = 0; x < invalidLandmarks.size(); x++) {
+					if(j == invalidLandmarks.get(x)) {
+						contains = true;
+					}
+				}			
+				if(!contains) {
+					node = landmarks.get(j);
+					dist = calculateDistance(sourceNode, node);
+					dist2 = calculateDistance(targetNode, node);
+					if(dist < min && dist < dist2) {
+						min = dist;
+						minNode = j;
+					}
+				}
+			}
+			if(minNode == -1) {
+				System.out.println("Warning1: Did not find landmark "+i);
+			}
+			else {
+				backwardLandmarks.add(minNode);
+			}
+			
+		}
+		
+		// Select the u closest landmarks to target for the search.
+		// The landmark must also be further away from the source than the target.
+		for(int i = 0; i < u; i++) {
+			
+			min = Long.MAX_VALUE;
+			minNode = -1;
+			dist = 0;
+			
+			for(int j = 0; j < landmarks.size(); j++) {
+				contains = false;
+				// Brute force check if we already selected this landmark
+				for(int x = 0; x < forwardLandmarks.size(); x++) {
+					if(j == forwardLandmarks.get(x)) {
+						contains = true;
+					}
+				}
+				for(int x = 0; x < invalidLandmarks.size(); x++) {
+					if(j == invalidLandmarks.get(x)) {
+						contains = true;
+					}
+				}
+				if(!contains) {
+					node = landmarks.get(j);
+					dist = calculateDistance(targetNode, node);
+					dist2 = calculateDistance(sourceNode, node);
+					if(dist < min && dist < dist2) {
+						min = dist;
+						minNode = j;
+					}
+				}
+			}
+			if(minNode == -1) {
+				System.out.println("Warning2: Did not find landmark "+i);
+			}
+			else {
+				forwardLandmarks.add(minNode);
+			}
+			
+		}
+		
+		preprocessStop = System.currentTimeMillis();
+		preprocessTotal += (preprocessStop-preprocessStart);
+		preprocessTotal = preprocessTotal * runs; // To be averaged out later
+		
+		long shortest = Long.MAX_VALUE; // For use below
+		ALTNode smallest = null;
+		
+		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
@@ -245,7 +726,7 @@ public class ALT {
 			}
 			
 			preprocessStop = System.currentTimeMillis();
-			preprocessTotal += (preprocessStop-preprocessStart);
+			//preprocessTotal += (preprocessStop-preprocessStart);
 			
 			queryStart = System.currentTimeMillis();
 			
@@ -271,7 +752,19 @@ public class ALT {
 				if(node1.potential == 0) {
 					long forward = 0;
 					long backward = 0;
-					for(int i = 0; i < node1.landmarksForwardDistances.size(); i++) {
+					for(int i = 0; i < forwardLandmarks.size(); i++) {
+						int j = forwardLandmarks.get(i);
+						if(forward < node1.landmarksForwardDistances.get(j)) {
+							forward = node1.landmarksForwardDistances.get(j);
+						}
+					}
+					for(int i = 0; i < backwardLandmarks.size(); i++) {
+						int j = backwardLandmarks.get(i);
+						if(backward < node1.landmarksBackwardDistances.get(j)) {
+							backward = node1.landmarksBackwardDistances.get(j);
+						}
+					}
+					/*for(int i = 0; i < node1.landmarksForwardDistances.size(); i++) {
 						if(forward < node1.landmarksForwardDistances.get(i)) {
 							forward = node1.landmarksForwardDistances.get(i);
 						}
@@ -280,7 +773,7 @@ public class ALT {
 						if(backward < node1.landmarksBackwardDistances.get(i)) {
 							backward = node1.landmarksBackwardDistances.get(i);
 						}
-					}
+					}*/
 					node1.potential = (forward-backward)/2;
 				}
 				node2 = (ALTNode) biTree.deleteMin();
@@ -291,7 +784,19 @@ public class ALT {
 				if(node2.potential2 == 0) {
 					long forward = 0;
 					long backward = 0;
-					for(int i = 0; i < node2.landmarksForwardDistances.size(); i++) {
+					for(int i = 0; i < forwardLandmarks.size(); i++) {
+						int j = forwardLandmarks.get(i);
+						if(forward < node2.landmarksForwardDistances.get(j)) {
+							forward = node2.landmarksForwardDistances.get(j);
+						}
+					}
+					for(int i = 0; i < backwardLandmarks.size(); i++) {
+						int j = backwardLandmarks.get(i);
+						if(backward < node2.landmarksBackwardDistances.get(j)) {
+							backward = node2.landmarksBackwardDistances.get(j);
+						}
+					}
+					/*for(int i = 0; i < node2.landmarksForwardDistances.size(); i++) {
 						if(forward < node2.landmarksForwardDistances.get(i)) {
 							forward = node2.landmarksForwardDistances.get(i);
 						}
@@ -300,7 +805,7 @@ public class ALT {
 						if(backward < node2.landmarksBackwardDistances.get(i)) {
 							backward = node2.landmarksBackwardDistances.get(i);
 						}
-					}
+					}*/
 					node2.potential2 = (backward - forward)/2;
 				}
 				if(node1.pathLength + node2.pathLength2 >= shortest) {
@@ -316,7 +821,19 @@ public class ALT {
 					if(decreaseNode1.potential == 0) {
 						long forward = 0;
 						long backward = 0;
-						for(int j = 0; j < decreaseNode1.landmarksForwardDistances.size(); j++) {
+						for(int x = 0; x < forwardLandmarks.size(); x++) {
+							int y = forwardLandmarks.get(x);
+							if(forward < decreaseNode1.landmarksForwardDistances.get(y)) {
+								forward = decreaseNode1.landmarksForwardDistances.get(y);
+							}
+						}
+						for(int x = 0; x < backwardLandmarks.size(); x++) {
+							int y = backwardLandmarks.get(x);
+							if(backward < decreaseNode1.landmarksBackwardDistances.get(y)) {
+								backward = decreaseNode1.landmarksBackwardDistances.get(y);
+							}
+						}
+						/*for(int j = 0; j < decreaseNode1.landmarksForwardDistances.size(); j++) {
 							if(forward < decreaseNode1.landmarksForwardDistances.get(j)) {
 								forward = decreaseNode1.landmarksForwardDistances.get(j);
 							}
@@ -325,7 +842,7 @@ public class ALT {
 							if(backward < decreaseNode1.landmarksBackwardDistances.get(j)) {
 								backward = decreaseNode1.landmarksBackwardDistances.get(j);
 							}
-						}
+						}*/
 						decreaseNode1.potential = (forward-backward)/2;
 					}
 					long newKeyLength = node1.pathLength + edge1.travelTime + 
@@ -357,7 +874,19 @@ public class ALT {
 					if(decreaseNode2.potential2 == 0) {
 						long forward = 0;
 						long backward = 0;
-						for(int j = 0; j < decreaseNode2.landmarksForwardDistances.size(); j++) {
+						for(int x = 0; x < forwardLandmarks.size(); x++) {
+							int y = forwardLandmarks.get(x);
+							if(forward < decreaseNode2.landmarksForwardDistances.get(y)) {
+								forward = decreaseNode2.landmarksForwardDistances.get(y);
+							}
+						}
+						for(int x = 0; x < backwardLandmarks.size(); x++) {
+							int y = backwardLandmarks.get(x);
+							if(backward < decreaseNode2.landmarksBackwardDistances.get(y)) {
+								backward = decreaseNode2.landmarksBackwardDistances.get(y);
+							}
+						}
+						/*for(int j = 0; j < decreaseNode2.landmarksForwardDistances.size(); j++) {
 							if(forward < decreaseNode2.landmarksForwardDistances.get(j)) {
 								forward = decreaseNode2.landmarksForwardDistances.get(j);
 							}
@@ -366,7 +895,7 @@ public class ALT {
 							if(backward < decreaseNode2.landmarksBackwardDistances.get(j)) {
 								backward = decreaseNode2.landmarksBackwardDistances.get(j);
 							}
-						}
+						}*/
 						decreaseNode2.potential2 = (backward - forward)/2;
 					}
 					long newKeyLength = node2.pathLength2 + edge2.travelTime + 
@@ -414,6 +943,8 @@ public class ALT {
 			check = path;
 		}
 		
+		preprocessTime = preprocessTotal / runs;
+		queryTime = queryTotal / runs;
 		return shortest;
 	}
 	
@@ -589,7 +1120,15 @@ public class ALT {
 		long shortest = Long.MAX_VALUE; // For use below
 		ALTNode smallest = null;
 		
+		BufferedWriter out1 = null;
+		BufferedWriter out2 = null;
+		
 		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
+			
+			out1 = new BufferedWriter(new FileWriter("ALT1.txt"));
+			out2 = new BufferedWriter(new FileWriter("ALT2.txt"));
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
@@ -637,7 +1176,7 @@ public class ALT {
 			}
 			
 			preprocessStop = System.currentTimeMillis();
-			preprocessTotal += (preprocessStop-preprocessStart);
+			//preprocessTotal += (preprocessStop-preprocessStart);
 			
 			queryStart = System.currentTimeMillis();
 			
@@ -657,11 +1196,19 @@ public class ALT {
 			while(node1.id != targetNode.id && node2.id != sourceNode.id) {
 				node1 = (ALTNode) tree.deleteMin();
 				nodesChecked++;
+				if(write) {
+					out1.write(node1.id+" "+node1.lat+" "+node1.lon);
+					out1.newLine();
+				}
 				if(node1.deleted2) {
 					break;
 				}
 				node2 = (ALTNode) biTree.deleteMin();
 				nodesChecked++;
+				if(write) {
+					out2.write(node2.id+" "+node2.lat+" "+node2.lon);
+					out2.newLine();
+				}
 				if(node2.deleted) {
 					break;
 				}
@@ -771,8 +1318,17 @@ public class ALT {
 			queryTotal += (queryStop - queryStart);
 			
 			check = path;
+			
+			out1.write("end");
+			out1.flush();
+			out1.close();
+			out2.write("end");
+			out2.flush();
+			out2.close();
 		}
 		
+		preprocessTime = preprocessTotal / runs;
+		queryTime = queryTotal / runs;
 		return shortest;
 	}
 	
@@ -1537,6 +2093,7 @@ public class ALT {
 		ALTNode node = null;
 		// Do a Dijkstra search, and reverse, from each landmark, adding the shortest path to each node
 		for(int i = 0; i < landmarks.size(); i++) {
+			System.out.println("Calculating all distances to landmark "+(i+1));
 			node = landmarks.get(i);
 			computeForward(node, nodes, hashMap, ret, i);
 			computeBackward(node, nodes, hashMap, ret, i);
@@ -1716,6 +2273,7 @@ public class ALT {
 		long farthest = 0;
 		ALTNode farthestNode = null;
 		long temp = 0;
+		System.out.println("Computing farthest landmark 1");
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
 			temp = calculateDistance(node, sourceNode);
@@ -1728,6 +2286,7 @@ public class ALT {
 		ret.add(farthestNode);	
 		// Recursively find the node furthest away from the other landmarks
 		for(int i = 0; i < k-1; i++) {
+			System.out.println("Computing farthest landmark "+(i+2));
 			node = findFurthestNodeAwayFromSet(ret, nodes);
 			ret.add(node);
 		}
@@ -1752,6 +2311,7 @@ public class ALT {
 		long farthest = 0;
 		ALTNode farthestNode = null;
 		long temp = 0;
+		System.out.println("Computing optimized farthest landmark 1");
 		for(int i = 0; i < nodes.size(); i++) {
 			node = nodes.get(i);
 			temp = calculateDistance(node, sourceNode);
@@ -1764,6 +2324,7 @@ public class ALT {
 		ret.add(farthestNode);	
 		// Recursively find the node furthest away from the other landmarks
 		for(int i = 0; i < k-1; i++) {
+			System.out.println("Computing optimized farthest landmark "+(i+2));
 			node = findFurthestNodeAwayFromSet(ret, nodes);
 			ret.add(node);
 		}
@@ -1787,6 +2348,7 @@ public class ALT {
 		
 		// Now recursively o times find a better candidate than the worst in ret and replace it.
 		for(int i = 0; i < o; i++) {
+			System.out.println("Finding extra landmark "+(i+1));
 			landmark = findFurthestNodeAwayFromSet(ret, nodes);
 			ret.remove(worstNode);
 			ret.add(landmark);

@@ -24,6 +24,7 @@ public class Dijkstra {
 	long queryTime = 0;
 	ArrayList<RedBlackNode> check = null;
 	long nodesChecked = 0;
+	public boolean write = false;
 
 	public long dijkstra(String input, long source, long target, int runs) throws IOException {
 		
@@ -183,7 +184,13 @@ public class Dijkstra {
 		preprocessTotal += (preprocessStop-preprocessStart);
 		preprocessTotal = preprocessTotal * runs; // To be averaged out later
 		
+		BufferedWriter out = null;
+		
 		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
+			
+			out = new BufferedWriter(new FileWriter("DijkstraNodes.txt"));
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
@@ -224,6 +231,10 @@ public class Dijkstra {
 			while(node.id != targetNode.id) {
 				node = tree.deleteMin();
 				nodesChecked++;
+				if(write) {
+					out.write(node.id+" "+node.lat+" "+node.lon);
+					out.newLine();
+				}
 				node.deleted = true;
 				Edge edge = null;
 				RedBlackNode decreaseNode = null;
@@ -260,6 +271,10 @@ public class Dijkstra {
 			queryTotal += (queryStop - queryStart);
 			
 			check = path;
+			
+			out.write("end");
+			out.flush();
+			out.close();
 		}
 		
 		preprocessTime = preprocessTotal / runs;
@@ -539,7 +554,15 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 		preprocessTotal += (preprocessStop-preprocessStart);
 		preprocessTotal = preprocessTotal * runs; // To be averaged out later
 		
+		BufferedWriter out1 = null;
+		BufferedWriter out2 = null;
+		
 		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
+			
+			out1 = new BufferedWriter(new FileWriter("BidirectionalDijkstraNodes1.txt"));
+			out2 = new BufferedWriter(new FileWriter("BidirectionalDijkstraNodes2.txt"));
 			
 			nodesChecked = 0;
 			preprocessStart = System.currentTimeMillis();
@@ -599,6 +622,10 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 			while(node1.id != targetNode.id && node2.id != sourceNode.id) {
 				node1 = (BiRedBlackNode) tree.deleteMin();
 				nodesChecked++;
+				if(write) {
+					out1.write(node1.id+" "+node1.lat+" "+node1.lon);
+					out1.newLine();
+				}
 				if(node1.deleted2) {
 					break;
 				}
@@ -606,6 +633,10 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 				nodesChecked++;
 				node1.deleted = true;
 				node2.deleted2 = true;
+				if(write) {
+					out2.write(node2.id+" "+node2.lat+" "+node2.lon);
+					out2.newLine();
+				}
 				if(node2.deleted) {
 					break;
 				}
@@ -696,6 +727,13 @@ public long bidirectionalDijkstraDelayedInsert(String input, long source, long t
 			queryTotal += (queryStop - queryStart);
 			
 			check = path;
+			
+			out1.write("end");
+			out1.flush();
+			out1.close();
+			out2.write("end");
+			out2.flush();
+			out2.close();
 		}
 		
 		preprocessTime = preprocessTotal / runs;
