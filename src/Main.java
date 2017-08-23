@@ -43,6 +43,7 @@ public class Main {
 					System.out.println("A* <runs> <write 0/1>");
 					System.out.println("A*bidirectional <runs> <write 0/1>");
 					System.out.println("ALT <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
+					System.out.println("ALTperfect <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 					System.out.println("ALTmodified <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 					System.out.println("CH <runs> <write 0/1>");
 					System.out.println("CHnaive <runs>");
@@ -117,6 +118,22 @@ public class Main {
 							write = true;
 						}
 						ALT(input, source, target, runs, Integer.parseInt(split[2]), 
+								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
+								Integer.parseInt(split[5]),write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(split[0].equalsIgnoreCase("ALTperfect")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[6]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						ALTperfect(input, source, target, runs, Integer.parseInt(split[2]), 
 								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
 								Integer.parseInt(split[5]),write);
 					} catch (IOException e) {
@@ -345,6 +362,32 @@ public class Main {
 			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
 			paintOnImage("1.png", "ALT2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
 			paintOnImage("2.png", "DanmarkALT.txt", "DKALT.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
+	}
+	
+	public static void ALTperfect(String input, long source, long target, int runs, int k, int u, int o, int type, boolean write) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		alt.write = write;
+		long ret = alt.ALTPerfectBidirectionalSearch(input, source, target, 1, 1, 1, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTperfect.txt"));
+		System.out.println("ALT finished");
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(node.id+" "+node.lat+" "+node.lon);
+			out.newLine();
+		}
+		out.write("end");
+		out.flush();
+		out.close();
+		System.out.println("Preprocess took "+alt.preprocessTime);
+		System.out.println("Query took "+alt.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "ALT2.txt", "2.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.RED);
+			paintOnImage("2.png", "DanmarkALTperfect.txt", "DKALTperfect.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
 		}
 	}
 	
