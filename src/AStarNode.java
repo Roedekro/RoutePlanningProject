@@ -7,8 +7,6 @@ public class AStarNode extends BiRedBlackNode {
 	public long potential2 = 0;
 	public long keyLength = Long.MAX_VALUE;
 	public long keyLength2 = Long.MAX_VALUE;
-	public long realPathLength = Long.MAX_VALUE;
-	public long realPathLength2 = Long.MAX_VALUE;
 	
 	public AStarNode(Node node) {
 		super(node);

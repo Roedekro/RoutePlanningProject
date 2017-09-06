@@ -45,15 +45,18 @@ public class Main {
 					System.out.println("ALT <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 					System.out.println("ALTperfect <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 					System.out.println("ALTmodified <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
+					System.out.println("ALTuni <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 					System.out.println("CH <runs> <write 0/1>");
 					System.out.println("CHnaive <runs>");
 					System.out.println("Create <input> <output> <height> <width> <minLat> <maxLat> <minLon> <maxLon>");
 					System.out.println("Paint <inputImage> <inputNodes> <output> <height> <width> <minLat> <maxLat> <minLon> <maxLon> <colour> (1=blue,2=red,3=green)");
+					System.out.println("A*Distance <runs> <write 0/1>");
+					System.out.println("ALTuniDistance <runs> <#landmarks> <#landmarks to be used> <optimize> <type> <write 0/1>");
 				}
-				if(split[0].equalsIgnoreCase("exit")) {
+				else if(split[0].equalsIgnoreCase("exit")) {
 					System.exit(0);
 				}
-				if(split[0].equalsIgnoreCase("dijkstra")) {
+				else if(split[0].equalsIgnoreCase("dijkstra")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[2]);
@@ -67,7 +70,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("dijkstraBidirectional")) {
+				else if(split[0].equalsIgnoreCase("dijkstraBidirectional")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[2]);
@@ -81,7 +84,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("A*")) {
+				else if(split[0].equalsIgnoreCase("A*")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[2]);
@@ -95,7 +98,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("A*bidirectional")) {
+				else if(split[0].equalsIgnoreCase("A*bidirectional")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[2]);
@@ -109,7 +112,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("ALT")) {
+				else if(split[0].equalsIgnoreCase("ALT")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[6]);
@@ -125,7 +128,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("ALTperfect")) {
+				else if(split[0].equalsIgnoreCase("ALTperfect")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[6]);
@@ -141,7 +144,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("ALTmodified")) {
+				else if(split[0].equalsIgnoreCase("ALTmodified")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[6]);
@@ -157,7 +160,23 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("CH")) {
+				else if(split[0].equalsIgnoreCase("ALTuni")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[6]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						ALTuni(input, source, target, runs, Integer.parseInt(split[2]), 
+								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
+								Integer.parseInt(split[5]),write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if(split[0].equalsIgnoreCase("CH")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						int writeInt = Integer.parseInt(split[2]);
@@ -171,7 +190,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("CHnaive")) {
+				else if(split[0].equalsIgnoreCase("CHnaive")) {
 					try {
 						runs = Integer.parseInt(split[1]);
 						CHNaive(input, source, target, runs);
@@ -180,7 +199,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("Create")) {
+				else if(split[0].equalsIgnoreCase("Create")) {
 					try {
 						createImage(split[1], split[2], Integer.parseInt(split[3]),
 								Integer.parseInt(split[4]), Double.parseDouble(split[5]),
@@ -191,7 +210,7 @@ public class Main {
 						e.printStackTrace();
 					}
 				}
-				if(split[0].equalsIgnoreCase("Paint")) {
+				else if(split[0].equalsIgnoreCase("Paint")) {
 					try {
 						int col = Integer.parseInt(split[10]);
 						Color color;
@@ -212,6 +231,42 @@ public class Main {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				}
+				else if(split[0].equalsIgnoreCase("A*distance")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[2]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						aStarDistance(input, source, target, runs,write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if(split[0].equalsIgnoreCase("ALTuniDistance")) {
+					try {
+						runs = Integer.parseInt(split[1]);
+						int writeInt = Integer.parseInt(split[6]);
+						boolean write = false;
+						if(writeInt > 0) {
+							write = true;
+						}
+						ALTuniDistance(input, source, target, runs, Integer.parseInt(split[2]), 
+								Integer.parseInt(split[3]), Integer.parseInt(split[4]), 
+								Integer.parseInt(split[5]),write);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if(split[0].equalsIgnoreCase("")) {
+					
+				}
+				else if(split[0].equalsIgnoreCase(" ")) {
+					
 				}
 				else {
 					System.out.println("Unknown Command");
@@ -449,6 +504,56 @@ public class Main {
 		}
 	}
 	
+	public static void ALTuni(String input, long source, long target, int runs, int k, int u, int o, int type,boolean write) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		alt.write = write;
+		long ret = alt.ALTUnidirectionalSearch(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTuni.txt"));
+		System.out.println("ALT unidirectional finished");
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(node.id+" "+node.lat+" "+node.lon);
+			out.newLine();
+		}	
+		out.write("end");
+		out.flush();
+		out.close();
+		System.out.println("Preprocess took "+alt.preprocessTime);
+		System.out.println("Query took "+alt.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "DanmarkALTuni.txt", "DKALTuni.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
+	}
+	
+	public static void ALTuniDistance(String input, long source, long target, int runs, int k, int u, int o, int type,boolean write) throws FileNotFoundException, IOException {
+		ALT alt = new ALT();
+		alt.write = write;
+		long ret = alt.ALTUniDistance(input, source, target, k, u, o, type, runs);
+		ArrayList<ALTNode> nodes = alt.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"ALTuniDistance.txt"));
+		System.out.println("ALT unidirectional finished");
+		System.out.println(ret + " " + nodes.size() + " " + alt.nodesChecked);
+		ALTNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(node.id+" "+node.lat+" "+node.lon);
+			out.newLine();
+		}	
+		out.write("end");
+		out.flush();
+		out.close();
+		System.out.println("Preprocess took "+alt.preprocessTime);
+		System.out.println("Query took "+alt.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "ALT1.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "DanmarkALTuniDistance.txt", "DKALTuniDistance.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
+	}
+	
 	public static void aStarEuclidian(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
 		AStar aStar = new AStar();
 		aStar.write = write;
@@ -471,6 +576,31 @@ public class Main {
 		if(write) {
 			paintOnImage("DanmarkBlackGray.png", "AstarNodes.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
 			paintOnImage("1.png", "DanmarkPathAStarEuclidian.txt", "DKAstar.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
+		}
+	}
+	
+	public static void aStarDistance(String input, long source, long target, int runs, boolean write) throws FileNotFoundException, IOException {
+		AStar aStar = new AStar();
+		aStar.write = write;
+		long ret = aStar.aStarDistance(input, source, target, runs);
+		ArrayList<AStarNode> nodes = aStar.check;
+		BufferedWriter out = new BufferedWriter(new FileWriter(input+"PathAStarDistance.txt"));
+		System.out.println("A* finished");
+		System.out.println(ret + " " + nodes.size() + " " + aStar.nodesChecked);
+		AStarNode node = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			out.write(node.id+" "+node.lat+" "+node.lon);
+			out.newLine();
+		}
+		out.write("end");
+		out.flush();
+		out.close();
+		System.out.println("Preprocess took "+aStar.preprocessTime);
+		System.out.println("Query took "+aStar.queryTime);
+		if(write) {
+			paintOnImage("DanmarkBlackGray.png", "AstarNodes.txt", "1.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.BLUE);
+			paintOnImage("1.png", "DanmarkPathAStarDistance.txt", "DKAstarDistance.png", 1284, 1880, 54.55, 57.76, 8, 12.7, Color.GREEN);
 		}
 	}
 	

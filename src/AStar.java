@@ -162,7 +162,6 @@ private static int shift = 33;
 					long newKeyLength = node.pathLength + edge.travelTime + 
 							(decreaseNode.potential - node.potential);
 					// Virker //long newKeyLength = node.pathLength + edge.travelTime + decreaseNode.potential;
-					//long newKeyLength = node.pathLength + edge.travelTime + (decreaseNode.potential - node.potential) + decreaseNode.potential;
 					if(!decreaseNode.deleted && newKeyLength < decreaseNode.keyLength) {
 						decreaseNode.path = node;
 						//decreaseNode.pathLength = node.pathLength + edge.travelTime;
@@ -207,6 +206,176 @@ private static int shift = 33;
 		return targetNode.pathLength2;
 		//return targetNode.pathLength;
 		//return targetNode.pathLength + (((AStarNode)(targetNode.path)).potential);
+	}
+	
+	public long aStarDistance(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
+		
+		preprocessTotal = 0;
+		queryTotal = 0;
+		preprocessTime = 0;
+		queryTime = 0;
+		
+		preprocessStart = System.currentTimeMillis();
+		
+		Tool tool = new Tool();
+		ArrayList<Node> normalNodes = tool.getNodesAsArrayList(input);
+		
+		HashMap<Long,AStarNode> hashMap = new HashMap<Long,AStarNode>();
+		
+		// Selection random source and target
+		// Alternatively always use the same source and target
+		if(source == 0 || target == 0) {
+			Random random = new Random();
+			source = normalNodes.get(random.nextInt(normalNodes.size())).id;
+			target = normalNodes.get(random.nextInt(normalNodes.size())).id;
+		}
+
+		AStarNode sourceNode = null;
+		AStarNode targetNode = null;
+		AStarNode node = null;
+		Node normalNode = null;
+		
+		ArrayList<AStarNode> nodes = new ArrayList<AStarNode>();
+		
+		for(int i = 0; i < normalNodes.size(); i++) {
+			normalNode = normalNodes.get(i);
+			node = new AStarNode(normalNode);
+			nodes.add(node);
+			hashMap.put(node.id, node);
+			if(node.id == source) {
+				sourceNode = node;
+			}
+			else if(node.id == target) {
+				targetNode = node;
+			}
+		}
+		
+		// NOPE - Wait till they are touched by one of the heaps.
+		// Add potential
+		//double cmMsec = 130*27.7777778;
+		double cmMsec = 130*0.0277777778;
+		/*for(int i = 0; i < nodes.size(); i++) {
+			node = nodes.get(i);
+			// Euclidian distance in cm divided by 130km/h in cm/h. 
+			// Dont use Math.round as it must be a lower bound. Casting to long will round it down.
+			node.potential = (long) (calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon) / cmMsec);
+		}*/
+		
+		preprocessStop = System.currentTimeMillis();
+		preprocessTotal += (preprocessStop-preprocessStart);
+		preprocessTotal = preprocessTotal * runs; // To be averaged out later
+		
+		BufferedWriter out = null;
+		
+		for(int r = 0; r < runs; r++) {
+			
+			System.out.println("Run "+(r+1));
+			
+			nodesChecked = 0;
+			
+			out = new BufferedWriter(new FileWriter("AstarNodes.txt"));
+			
+			preprocessStart = System.currentTimeMillis();
+			
+			for(int i = 0; i < nodes.size(); i++) {
+				node = nodes.get(i);
+				// Reset
+				node.key = Long.MAX_VALUE - i;
+				node.colour = false;
+				node.deleted = false;
+				node.inserted = false;
+				node.parent = null;
+				node.leftChild = null;
+				node.rightChild = null;
+				node.path = null;
+				node.pathLength = Long.MAX_VALUE;
+				node.pathLength2 = Long.MAX_VALUE;
+				node.keyLength = Long.MAX_VALUE;
+				node.potential = 0;
+				if(node.id == source) {
+					sourceNode = node;
+					node.key = 0;
+					node.pathLength = 0;
+					node.pathLength2 = 0;
+					node.keyLength = 0;
+				}
+				else if(node.id == target) {
+					targetNode = node;
+				}
+			}
+			
+			preprocessStop = System.currentTimeMillis();
+			preprocessTotal += (preprocessStop-preprocessStart);
+			
+			queryStart = System.currentTimeMillis();
+			
+			RedBlackTree tree = new RedBlackTree();
+			tree.insertNode(sourceNode);
+			
+			// Dijkstra
+			node = sourceNode;
+			while(node.id != targetNode.id) {
+				node = (AStarNode) tree.deleteMin();
+				nodesChecked++;
+				if(write) {
+					out.write(node.id+" "+node.lat+" "+node.lon);
+					out.newLine();
+				}
+				node.deleted = true;
+				// Calculate potential if not already done
+				if(node.potential == 0) {
+					node.potential = calculateDistance(node.lat, node.lon, targetNode.lat, targetNode.lon);
+				}
+				Edge edge = null;
+				AStarNode decreaseNode = null;
+				for(int i = 0; i < node.edges.size(); i++) {
+					edge = node.edges.get(i);
+					decreaseNode = hashMap.get(edge.nodeID);
+					if(decreaseNode.potential == 0) {
+						decreaseNode.potential = calculateDistance(decreaseNode.lat, decreaseNode.lon, targetNode.lat, targetNode.lon);
+					}
+					long newKeyLength = node.keyLength + edge.distance + 
+							(decreaseNode.potential - node.potential);
+					if(!decreaseNode.deleted && newKeyLength < decreaseNode.keyLength) {
+						decreaseNode.path = node;
+						decreaseNode.pathLength = node.pathLength + edge.distance;
+						decreaseNode.keyLength = newKeyLength;
+						if(decreaseNode.inserted) {
+							tree.decreaseKey(decreaseNode, newKeyLength);
+						}
+						else {
+							decreaseNode.key = calcKey(newKeyLength,decreaseNode.id);
+							decreaseNode.inserted = true;
+							tree.insertNode(decreaseNode);
+						}
+					}
+				}
+			}
+			
+			// Need to find the path as well, not just the path length
+			ArrayList<AStarNode> path = new ArrayList<AStarNode>();
+			
+			// Run through path writing out the route
+			while(node.id != sourceNode.id) {
+				path.add(node);
+				node = (AStarNode) node.path;
+			}
+			path.add(node);
+			
+			queryStop = System.currentTimeMillis();
+			queryTotal += (queryStop - queryStart);
+			
+			check = path;
+			
+			out.write("end");
+			out.flush();
+			out.close();
+		}
+		
+		preprocessTime = preprocessTotal / runs;
+		queryTime = queryTotal / runs;
+		
+		return targetNode.pathLength;
 	}
 	
 	public long aStarBiDirectionalEuclidian(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
@@ -329,8 +498,6 @@ private static int shift = 33;
 				node.path2 = null;
 				node.pathLength = Long.MAX_VALUE;
 				node.pathLength2 = Long.MAX_VALUE;
-				node.realPathLength = Long.MAX_VALUE;
-				node.realPathLength2 = Long.MAX_VALUE;
 				node.keyLength = Long.MAX_VALUE;
 				node.keyLength2 = Long.MAX_VALUE;
 				node.potential = 0;
@@ -339,14 +506,12 @@ private static int shift = 33;
 					sourceNode = node;
 					node.key = 0;
 					node.pathLength = 0;
-					node.realPathLength = 0;
 					node.keyLength = 0;
 				}
 				else if(node.id == target) {
 					targetNode = node;
 					node.key2 = 0;
 					node.pathLength2 = 0;
-					node.realPathLength2 = 0;
 					node.keyLength2 = 0;
 				}
 			}
@@ -408,16 +573,15 @@ private static int shift = 33;
 						decreaseNode1.potential = (long) ((calculateDistance(decreaseNode1.lat,decreaseNode1.lon,targetNode.lat,targetNode.lon) - calculateDistance(sourceNode.lat,sourceNode.lon,decreaseNode1.lat,decreaseNode1.lon))/(2*cmMsec));
 					}
 					//System.out.println("l(v,w) = "+edge1.travelTime +", discount = "+ (decreaseNode1.potential - node1.potential));
-					long newKeyLength = node1.pathLength + edge1.travelTime + 
+					long newKeyLength = node1.keyLength + edge1.travelTime + 
 							(decreaseNode1.potential - node1.potential);
 					if(!decreaseNode1.deleted && newKeyLength < decreaseNode1.keyLength) {
 						decreaseNode1.path = node1;
-						decreaseNode1.pathLength = node1.pathLength + edge1.travelTime + (decreaseNode1.potential - node1.potential);
-						decreaseNode1.realPathLength = node1.realPathLength + edge1.travelTime;
+						decreaseNode1.pathLength = node1.pathLength + edge1.travelTime;
 						decreaseNode1.keyLength = newKeyLength;
-						long newMin = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+						long newMin = decreaseNode1.keyLength+decreaseNode1.keyLength2;
 						if(newMin > 0 && newMin < shortest) {
-							shortest = decreaseNode1.pathLength+decreaseNode1.pathLength2;
+							shortest = decreaseNode1.keyLength+decreaseNode1.keyLength2;
 							smallest = decreaseNode1;
 						}
 						if(decreaseNode1.inserted) {
@@ -438,16 +602,15 @@ private static int shift = 33;
 					if(decreaseNode2.potential2 == 0) {
 						decreaseNode2.potential2 = (long) ((calculateDistance(sourceNode.lat,sourceNode.lon,decreaseNode2.lat,decreaseNode2.lon) - calculateDistance(decreaseNode2.lat,decreaseNode2.lon,targetNode.lat,targetNode.lon))/(2*cmMsec));
 					}
-					long newKeyLength = node2.pathLength2 + edge2.travelTime + 
+					long newKeyLength = node2.keyLength2 + edge2.travelTime + 
 							(decreaseNode2.potential2 - node2.potential2);
 					if(!decreaseNode2.deleted2 && newKeyLength < decreaseNode2.keyLength2) {
 						decreaseNode2.path2 = node2;
-						decreaseNode2.pathLength2 = node2.pathLength2 + edge2.travelTime + (decreaseNode2.potential2 - node2.potential2);
-						decreaseNode2.realPathLength2 = node2.realPathLength2 + edge2.travelTime;
+						decreaseNode2.pathLength2 = node2.pathLength2 + edge2.travelTime;
 						decreaseNode2.keyLength2 = newKeyLength;
-						long newMin = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+						long newMin = decreaseNode2.keyLength+decreaseNode2.keyLength2;
 						if(newMin > 0 && newMin < shortest) {
-							shortest = decreaseNode2.pathLength+decreaseNode2.pathLength2;
+							shortest = decreaseNode2.keyLength+decreaseNode2.keyLength2;
 							smallest = decreaseNode2;
 						}
 						if(decreaseNode2.inserted2) {
@@ -505,7 +668,7 @@ private static int shift = 33;
 
 		preprocessTime = preprocessTotal / runs;
 		queryTime = queryTotal / runs;
-		return (smallest.realPathLength+smallest.realPathLength2);
+		return (smallest.pathLength+smallest.pathLength2);
 	}
 	
 	public long aStarBiDirectionalEuclidianBackup(String input, long source, long target, int runs) throws FileNotFoundException, IOException {
